@@ -10,7 +10,7 @@ From the main directory:
 
 Navigate to `http://localhost:3000/` 
 
-![Dashboard](https://github.com/jquad-group/backstage/blob/main/img/tekton.png)
+![Dashboard](https://github.com/jquad-group/backstage-jquad/blob/main/img/tekton.png)
 
 
 
