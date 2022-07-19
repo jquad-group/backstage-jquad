@@ -52,3 +52,22 @@ export default async function createPlugin(
   });
 }
 ```
+
+# Use the plugin
+
+In a `Component` add the annotation `tektonci/build-namespace`. E.g. to get the pipelines from the `microservice-build` namespace:
+
+```
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  namespace: default
+  annotations:
+    tektonci/build-namespace: microservice-build
+  name: jquad-microservice
+  description: JQuad Microservice
+spec:
+  type: service
+  lifecycle: production
+  owner: user:guest
+```
