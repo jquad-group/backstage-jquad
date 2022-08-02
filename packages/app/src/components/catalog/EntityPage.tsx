@@ -73,7 +73,6 @@ import { ReportIssue } from '@backstage/plugin-techdocs-module-addons-contrib';
 
 import { TektonPipelinesPluginPage, isTektonCiAvailable } from '@jquad-group/plugin-tekton-pipelines';
 
-
 const techdocsContent = (
   <EntityTechdocsContent>
     <TechDocsAddons>
