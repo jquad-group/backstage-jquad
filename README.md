@@ -21,9 +21,9 @@ tekton:
 
 In order to add the tekton plugin in your backstage app, you need to run the following commands from the root directory:
 
-`yarn workspace example-app add -cwd packages/app @jquad-group/plugin-tekton-pipelines@0.0.8`
+`yarn workspace example-app add -cwd packages/app @jquad-group/plugin-tekton-pipelines@0.0.9`
 
-`yarn workspace example-app add -cwd packages/backend @jquad-group/plugin-tekton-pipelines-backend@0.0.5`
+`yarn workspace example-app add -cwd packages/backend @jquad-group/plugin-tekton-pipelines-backend@0.0.9`
 
 In your backstage app in `.\packages\app\src\components\catalog\EntityPage.tsx` add the following:
  
