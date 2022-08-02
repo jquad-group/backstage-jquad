@@ -40,11 +40,13 @@ export async function createRouter(
 
   router.get('/pipelineruns', async (request, response) => {
     const namespace: any = request.query.namespace
+    const selector: any = request.query.selector
 
     const pipelineruns = await getPipelineRuns(
       baseUrl,
       authorizationBearerToken,
       namespace,
+      selector,
     )
 
     response.send(pipelineruns)

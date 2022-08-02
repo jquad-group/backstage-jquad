@@ -67,7 +67,7 @@ export default async function createPlugin(
 
 # Use the plugin
 
-In a `Component` add the annotation `tektonci/build-namespace`. E.g. to get the pipelines from the `microservice-build` namespace:
+In a `Component` add the annotation `tektonci/build-namespace` or `tektonci/pipeline-label-selector`. E.g. to get the pipelines from the `microservice-build` namespace:
 
 ```
 apiVersion: backstage.io/v1alpha1
