@@ -21,13 +21,9 @@ tekton:
 
 In order to add the tekton plugin in your backstage app, you need to run the following commands from the root directory:
 
-`yarn workspace example-app add -cwd packages/app @jquad-group/plugin-tekton-pipelines@0.0.4`
+`yarn workspace example-app add -cwd packages/app @jquad-group/plugin-tekton-pipelines@0.0.7`
 
-`yarn workspace example-app add -cwd packages/backend @jquad-group/plugin-tekton-pipelines-backend@0.0.4`
-
-`yarn tsc`
-
-`yarn build && yarn tsc && yarn install` 
+`yarn workspace example-app add -cwd packages/backend @jquad-group/plugin-tekton-pipelines-backend@0.0.5`
 
 In your backstage app in `.\packages\app\src\components\catalog\EntityPage.tsx` add the following:
  
@@ -38,19 +34,23 @@ import { TektonPipelinesPluginPage, isTektonCiAvailable } from '@jquad-group/plu
 const serviceEntityPage = (
     ...
     <EntityLayout.Route path="/tekton-pipelines-plugin" title="Tekton Pipelines">
-    <EntitySwitch>
-    <EntitySwitch.Case if={e => Boolean(isTektonCiAvailable(e))}>
-      <TektonPipelinesPluginPage />
-    </EntitySwitch.Case>
+   
+      <EntitySwitch>
 
-    <EntitySwitch.Case>
-      <EmptyState
-        title="No Tekton Pipelines available for this entity"
-        missing="info"
-        description="You need to add the annotation 'tektonci/build-namespace' to your component if you want to enable the Tekton Pipelines for it."
-      />
-    </EntitySwitch.Case>
-    </EntitySwitch>
+        <EntitySwitch.Case if={e => Boolean(isTektonCiAvailable(e))}>
+          <TektonPipelinesPluginPage />
+        </EntitySwitch.Case>
+
+        <EntitySwitch.Case>
+          <EmptyState
+            title="No Tekton Pipelines available for this entity"
+            missing="info"
+            description="You need to add the annotation 'tektonci/build-namespace' to your component if you want to enable the Tekton Pipelines for it."
+          />
+        </EntitySwitch.Case>
+
+      </EntitySwitch>
+
     </EntityLayout.Route>
     ...
 );
