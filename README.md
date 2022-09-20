@@ -5,6 +5,7 @@
 
 ![Dashboard](https://github.com/jquad-group/backstage-jquad/blob/main/img/tekton.png)
 
+
 # Configuration
 
 In the `app-config.yaml` the following properties must be set:
@@ -13,6 +14,7 @@ In the `app-config.yaml` the following properties must be set:
 tekton:
   baseUrl: https://kubernetes-api-server:6443
   authorizationBearerToken: TOKEN
+  dashboardBaseUrl: https://tekton-dashboard.myserver.com/
 ```
 
 # Add the plugin to your custom backstage app
@@ -21,9 +23,9 @@ tekton:
 
 In order to add the tekton plugin in your backstage app, you need to run the following commands from the root directory:
 
-`yarn workspace example-app add -cwd packages/app @jquad-group/plugin-tekton-pipelines@0.0.9`
+`yarn workspace example-app add -cwd packages/app @jquad-group/plugin-tekton-pipelines@0.1.0`
 
-`yarn workspace example-app add -cwd packages/backend @jquad-group/plugin-tekton-pipelines-backend@0.0.9`
+`yarn workspace example-app add -cwd packages/backend @jquad-group/plugin-tekton-pipelines-backend@0.1.0`
 
 In your backstage app in `.\packages\app\src\components\catalog\EntityPage.tsx` add the following:
  
@@ -77,7 +79,7 @@ export default async function createPlugin(
 
 # Use the plugin
 
-In a `Component` add the annotation `tektonci/build-namespace` or `tektonci/pipeline-label-selector`. E.g. to get the pipelines from the `microservice-build` namespace:
+In a `Component` add the annotation `tektonci/build-namespace` or/and `tektonci/pipeline-label-selector`. E.g. to get the pipelines from the `microservice-build` namespace:
 
 ```
 apiVersion: backstage.io/v1alpha1
@@ -86,6 +88,7 @@ metadata:
   namespace: default
   annotations:
     tektonci/build-namespace: microservice-build
+    tektonci/pipeline-label-selector: 'pipeline.jquad.rocks/git.repository.branch.name=main'
   name: jquad-microservice
   description: JQuad Microservice
 spec:

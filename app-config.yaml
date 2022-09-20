@@ -104,4 +104,5 @@ catalog:
 
 tekton:
   baseUrl: https://rancher.jquad.rocks
-  authorizationBearerToken: 'token-ms7t6:lwsftplxxrll7wq4fnl5fl5t42l7pxfp2rnggr62cg4ml7ds5ckbh2'
+  authorizationBearerToken: 'token'
+  dashboardBaseUrl: https://rancher.jquad.rocks/k8s/clusters/local/api/v1/namespaces/tekton-pipelines/services/http:tekton-dashboard:9097/proxy/ 

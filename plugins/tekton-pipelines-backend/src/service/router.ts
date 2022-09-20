@@ -19,7 +19,7 @@ import express from 'express';
 import Router from 'express-promise-router';
 import { Logger } from 'winston';
 import { Config } from '@backstage/config'
-import { getPipelineRuns } from './pipelinerun';
+import { getMicroservicePipelineRuns } from './pipelinerun';
 
 export interface RouterOptions {
   logger: Logger;
@@ -37,20 +37,22 @@ export async function createRouter(
   logger.info('Initializing tekton backend')
   const baseUrl = config.getString('tekton.baseUrl')
   const authorizationBearerToken = config.getString('tekton.authorizationBearerToken')
+  const dashboardBaseUrl = config.getString('tekton.dashboardBaseUrl')
 
   router.get('/pipelineruns', async (request, response) => {
     const namespace: any = request.query.namespace
     const selector: any = request.query.selector
 
-    const pipelineruns = await getPipelineRuns(
+    const pipelineruns = await getMicroservicePipelineRuns(
       baseUrl,
       authorizationBearerToken,
       namespace,
       selector,
+      dashboardBaseUrl,
     )
 
     response.send(pipelineruns)
-  })
+  })  
 
   router.get('/health', (_, response) => {
     logger.info('PONG!');
