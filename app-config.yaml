@@ -105,4 +105,4 @@ catalog:
 tekton:
   baseUrl: https://example.domain.com
   authorizationBearerToken: 'xxx'
-  dashboardBaseUrl: https://tekton.dashboard.com/
+  dashboardBaseUrl: https://example.domain.com

@@ -39,7 +39,7 @@ catalog:
   # on how to get entities into the catalog.
   locations: []
 
-tekton:
+ tekton:
   baseUrl: https://example.domain.com
   authorizationBearerToken: 'xxx'
-  dashboardBaseUrl: https://tekton.dashboard.com/
+  dashboardBaseUrl: https://example.domain.com
