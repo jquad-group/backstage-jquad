@@ -103,6 +103,6 @@ catalog:
         - allow: [User, Group]
 
 tekton:
-  baseUrl: https://rancher.jquad.rocks
-  authorizationBearerToken: 'token'
-  dashboardBaseUrl: https://rancher.jquad.rocks/k8s/clusters/local/api/v1/namespaces/tekton-pipelines/services/http:tekton-dashboard:9097/proxy/ 
+  baseUrl: https://example.domain.com
+  authorizationBearerToken: 'xxx'
+  dashboardBaseUrl: https://tekton.dashboard.com/

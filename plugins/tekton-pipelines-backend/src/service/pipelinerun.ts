@@ -12,6 +12,10 @@ interface PipelineRun {
       conditions: [
         Condition
       ]
+      startTime: Date
+      completionTime: Date
+      duration: number
+      durationString: string
     }
 }
 
@@ -24,8 +28,11 @@ interface TaskRun {
   status: {
     conditions: [
       Condition
-    ]
+    ],
     startTime: Date
+    completionTime: Date
+    duration: number
+    durationString: string
   }
 }
 
@@ -70,6 +77,10 @@ const getPipelineRuns = async (baseUrl: string, authorizationBearerToken: string
             conditions: [
               item.status.conditions[0]
             ],
+            startTime: new Date(item.status.startTime),
+            completionTime: new Date(item.status.completionTime),
+            duration: (new Date(item.status.completionTime).getTime() - new Date(item.status.startTime).getTime()) / 1000,            
+            durationString: new Date(((new Date(item.status.completionTime).getTime() - new Date(item.status.startTime).getTime()) / 1000) * 1000).toISOString().slice(11, 19)
           },
         }
         
@@ -104,7 +115,10 @@ const getTaskRunsForPipelineRun = async (baseUrl: string, authorizationBearerTok
           conditions: [
             item.status.conditions[0]
           ],
-          startTime: new Date(item.status.startTime)
+          startTime: new Date(item.status.startTime),
+          completionTime: new Date(item.status.completionTime),
+          duration: (new Date(item.status.completionTime).getTime() - new Date(item.status.startTime).getTime()) / 1000,            
+          durationString: new Date(((new Date(item.status.completionTime).getTime() - new Date(item.status.startTime).getTime()) / 1000) * 1000).toISOString().slice(11, 19)
         },
       }
       taskRuns.push(taskRun)

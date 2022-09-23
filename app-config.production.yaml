@@ -39,7 +39,7 @@ catalog:
   # on how to get entities into the catalog.
   locations: []
 
- tekton:
-  baseUrl: https://rancher.jquad.rocks
-  authorizationBearerToken: 'token' 
-  dashboardBaseUrl: https://rancher.jquad.rocks/k8s/clusters/local/api/v1/namespaces/tekton-pipelines/services/http:tekton-dashboard:9097/proxy/
+tekton:
+  baseUrl: https://example.domain.com
+  authorizationBearerToken: 'xxx'
+  dashboardBaseUrl: https://tekton.dashboard.com/
