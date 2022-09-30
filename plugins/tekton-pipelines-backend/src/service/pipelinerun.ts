@@ -29,11 +29,13 @@ interface TaskRun {
     conditions: [
       Condition
     ],
+    steps: Array<string>
     startTime: Date
     completionTime: Date
     duration: number
     durationString: string
   }
+  log: string;
 }
 
 interface Condition {
@@ -115,11 +117,15 @@ const getTaskRunsForPipelineRun = async (baseUrl: string, authorizationBearerTok
           conditions: [
             item.status.conditions[0]
           ],
+          steps: item.status.steps.map(
+            (currentStep: any) => currentStep.container
+          ),
           startTime: new Date(item.status.startTime),
           completionTime: new Date(item.status.completionTime),
           duration: (new Date(item.status.completionTime).getTime() - new Date(item.status.startTime).getTime()) / 1000,            
           durationString: new Date(((new Date(item.status.completionTime).getTime() - new Date(item.status.startTime).getTime()) / 1000) * 1000).toISOString().slice(11, 19)
         },
+        log: ""
       }
       taskRuns.push(taskRun)
     })      
@@ -128,10 +134,35 @@ const getTaskRunsForPipelineRun = async (baseUrl: string, authorizationBearerTok
 } 
 
 
+const getLogsForTaskRun = async (baseUrl: string, authorizationBearerToken: string, namespace: string, taskRun: TaskRun): Promise<string> => {
+  let podName: string;
+  let stepName: string
+
+  podName = taskRun.metadata.name + "-pod" 
+  stepName = taskRun.status.steps[0]
+  const url = `${baseUrl}/api/v1/namespaces/${namespace}/pods/${podName}/log?container=${stepName}`
+  const response = await fetch(url, {
+      headers: {
+        'Content-Type': 'plain/text',
+        Authorization: `Bearer ${authorizationBearerToken}`,
+      },
+    })
+
+    const decoded = await response.text() 
+
+  return decoded
+}
+
 export async function getMicroservicePipelineRuns(baseUrl: string, authorizationBearerToken: string, namespace: string, selector: string, dashboardBaseUrl: string): Promise<PipelineRun[]> {  
       const pipelineRuns = await getPipelineRuns(baseUrl, authorizationBearerToken, namespace, selector, dashboardBaseUrl)
       for (const pipelineRun of pipelineRuns) {
         const taskRuns = await getTaskRunsForPipelineRun(baseUrl, authorizationBearerToken, namespace, pipelineRun.metadata.name)
+        for (const taskRun of taskRuns) {
+          const logs = await getLogsForTaskRun(baseUrl, authorizationBearerToken, namespace, taskRun)
+          console.log("-----------")
+          console.log(logs)
+          taskRun.log = logs
+        }
         const taskRunsSorted = taskRuns.sort(
           (taskRunA, taskRunB) => taskRunA.status.startTime.getTime() - taskRunB.status.startTime.getTime(),
         );        
