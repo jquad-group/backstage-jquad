@@ -46,8 +46,8 @@ interface Step {
 }
 
 interface Terminated {
-  startTime: Date
-  completionTime: Date
+  startedAt: Date
+  finishedAt: Date
   duration: number
   durationString: string  
   reason: string
@@ -157,7 +157,8 @@ const getLogsForTaskRun = async (baseUrl: string, authorizationBearerToken: stri
           Authorization: `Bearer ${authorizationBearerToken}`,
         },
       })
-    
+    currentStep.terminated.durationString = new Date(((new Date(currentStep.terminated.finishedAt).getTime() - new Date(currentStep.terminated.startedAt).getTime()) / 1000) * 1000).toISOString().slice(11, 19);
+    currentStep.terminated.startedAt = new Date(currentStep.terminated.startedAt);
     const decoded = await response.text() 
     currentStep.log = decoded
   }
