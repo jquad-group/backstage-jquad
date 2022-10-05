@@ -1,6 +1,6 @@
 import fetch from 'node-fetch'
 
-interface PipelineRun {
+export interface PipelineRun {
     metadata: {
       name: string; 
       namespace: string;

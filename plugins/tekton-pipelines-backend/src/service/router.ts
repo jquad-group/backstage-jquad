@@ -20,6 +20,7 @@ import Router from 'express-promise-router';
 import { Logger } from 'winston';
 import { Config } from '@backstage/config'
 import { getMicroservicePipelineRuns } from './pipelinerun';
+import { PipelineRun } from './pipelinerun';
 
 export interface RouterOptions {
   logger: Logger;
@@ -35,25 +36,34 @@ export async function createRouter(
   router.use(express.json());
 
   logger.info('Initializing tekton backend')
-  const baseUrl = config.getString('tekton.baseUrl')
-  const authorizationBearerToken = config.getString('tekton.authorizationBearerToken')
-  const dashboardBaseUrl = config.getString('tekton.dashboardBaseUrl')
+  var tektonConfig: Config[] = config.getConfigArray('tekton')
+    router.get('/pipelineruns', async (request, response) => {
+      const namespace: any = request.query.namespace
+      const selector: any = request.query.selector
 
-  router.get('/pipelineruns', async (request, response) => {
-    const namespace: any = request.query.namespace
-    const selector: any = request.query.selector
-
-    const pipelineruns = await getMicroservicePipelineRuns(
-      baseUrl,
-      authorizationBearerToken,
-      namespace,
-      selector,
-      dashboardBaseUrl,
-    )
-
-    response.send(pipelineruns)
-  })  
-
+      var result: Array<PipelineRun> = []
+      for(const currentConfig of tektonConfig) {
+    
+        var baseUrl: string = currentConfig.getString('baseUrl')
+        var authorizationBearerToken: string = currentConfig.getString('authorizationBearerToken')
+        var dashboardBaseUrl: string = currentConfig.getString('dashboardBaseUrl')
+    
+        const pipelineruns = await getMicroservicePipelineRuns(
+          baseUrl,
+          authorizationBearerToken,
+          namespace,
+          selector,
+          dashboardBaseUrl,
+        )
+        
+        for (const pipelineRun of pipelineruns) {
+          result.push(pipelineRun)
+        }
+               
+      }
+      response.send(result)
+    })
+  
   router.get('/health', (_, response) => {
     logger.info('PONG!');
     response.send({ status: 'ok' });

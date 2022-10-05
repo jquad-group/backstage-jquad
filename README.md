@@ -12,9 +12,9 @@ In the `app-config.yaml` the following properties must be set:
 
 ```
 tekton:
-  baseUrl: https://kubernetes-api-server:6443
-  authorizationBearerToken: TOKEN
-  dashboardBaseUrl: https://tekton-dashboard.myserver.com/
+  - baseUrl: https://kubernetes-api-server:6443
+    authorizationBearerToken: TOKEN
+    dashboardBaseUrl: https://tekton-dashboard.myserver.com/
 ```
 
 # Add the plugin to your custom backstage app
