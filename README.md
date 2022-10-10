@@ -77,6 +77,31 @@ export default async function createPlugin(
 }
 ```
 
+In the `packages/backend/src/index.ts`, add the following:
+
+```diff
+ import search from './plugins/search';
++import tekton from './plugins/tekton';
+ import { PluginEnvironment } from './types';
+ import { ServerPermissionClient } from '@backstage/plugin-permission-node';
+ import { DefaultIdentityClient } from '@backstage/plugin-auth-node'
+@@ -84,6 +85,7 @@ async function main() {
+   const techdocsEnv = useHotMemoize(module, () => createEnv('techdocs'));
+   const searchEnv = useHotMemoize(module, () => createEnv('search'));
+   const appEnv = useHotMemoize(module, () => createEnv('app'));
++  const tektonEnv = useHotMemoize(module, () => createEnv('tekton'))
+ 
+   const apiRouter = Router();
+   apiRouter.use('/catalog', await catalog(catalogEnv));
+@@ -92,6 +94,7 @@ async function main() {
+   apiRouter.use('/techdocs', await techdocs(techdocsEnv));
+   apiRouter.use('/proxy', await proxy(proxyEnv));
+   apiRouter.use('/search', await search(searchEnv));
++  apiRouter.use('/tekton', await tekton(tektonEnv) )
+ 
+
+```
+
 # Use the plugin
 
 In a `Component` add the annotation `tektonci/build-namespace` or/and `tektonci/pipeline-label-selector`. E.g. to get the pipelines from the `microservice-build` namespace:
