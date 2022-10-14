@@ -4,7 +4,7 @@ export interface PipelineRun {
     metadata: {
       name: string; 
       namespace: string;
-      labels: Array<string>;
+      labels: Record<string, Label>;
     }
     pipelineRunDashboardUrl: string;
     taskRuns: Array<TaskRun>
@@ -23,7 +23,7 @@ interface TaskRun {
   metadata: {
     name: string; 
     namespace: string;
-    labels: Array<string>;
+    labels: Record<string, Label>;
   }
   status: {
     conditions: [
@@ -36,6 +36,11 @@ interface TaskRun {
     duration: number;
     durationString: string;
   }
+}
+
+interface Label {
+  key: string;
+  value: string;
 }
 
 interface Step {
@@ -76,9 +81,7 @@ const getPipelineRuns = async (baseUrl: string, authorizationBearerToken: string
       }).then((res: { json: () => any }) => res.json())
     let prs: Array<PipelineRun> = []
     if (response.items) {
-      const labels: Array<string> = response.items.map(
-        (currentLabel: any) => currentLabel.metadata.labels
-      );
+
       let trs: Array<TaskRun> = [];
       
       (response.items as PipelineRun[]).forEach(item => {
@@ -86,7 +89,7 @@ const getPipelineRuns = async (baseUrl: string, authorizationBearerToken: string
           metadata: {
             name: item.metadata.name,
             namespace: item.metadata.namespace,
-            labels: labels,
+            labels: item.metadata.labels,
           },
           pipelineRunDashboardUrl: `${dashboardBaseUrl}#/namespaces/${namespace}/pipelineruns/${item.metadata.name}`,
           taskRuns: trs,
@@ -107,9 +110,15 @@ const getPipelineRuns = async (baseUrl: string, authorizationBearerToken: string
     return prs
 } 
 
-const getTaskRunsForPipelineRun = async (baseUrl: string, authorizationBearerToken: string, namespace: string, pipelineRunName: string): Promise<TaskRun[]> => {
+const getTaskRunsForMicroservice = async (baseUrl: string, authorizationBearerToken: string, namespace: string, selector: string): Promise<TaskRun[]> => {
 
-  const url = `${baseUrl}/apis/tekton.dev/v1beta1/namespaces/${namespace}/taskruns?labelSelector=tekton.dev%2FpipelineRun%3D${pipelineRunName}&limit=500`
+  let url: string
+  if (selector) {
+    url = `${baseUrl}/apis/tekton.dev/v1beta1/namespaces/${namespace}/taskruns?labelSelector=${selector}&limit=500`
+  } else {
+    url = `${baseUrl}/apis/tekton.dev/v1beta1/namespaces/${namespace}/taskruns`
+  }
+
   const response = await fetch(url, {
       headers: {
         'Content-Type': 'application/json',
@@ -117,16 +126,14 @@ const getTaskRunsForPipelineRun = async (baseUrl: string, authorizationBearerTok
       },
     }).then((res: { json: () => any }) => res.json())
   let taskRuns: Array<TaskRun> = []
+  
   if (response.items) {      
-    const labels: Array<string> = response.items.map(
-      (currentLabel: any) => currentLabel.metadata.labels
-    );
     (response.items as TaskRun[]).forEach(item => {
       const taskRun: TaskRun = {
         metadata: {
           name: item.metadata.name,
           namespace: item.metadata.namespace,
-          labels: labels
+          labels: item.metadata.labels,
         },
         status: {
           conditions: [
@@ -145,7 +152,6 @@ const getTaskRunsForPipelineRun = async (baseUrl: string, authorizationBearerTok
   }
   return taskRuns
 } 
-
 
 const getLogsForTaskRun = async (baseUrl: string, authorizationBearerToken: string, namespace: string, taskRun: TaskRun): Promise<void> => {
   
@@ -166,16 +172,23 @@ const getLogsForTaskRun = async (baseUrl: string, authorizationBearerToken: stri
 }
 
 export async function getMicroservicePipelineRuns(baseUrl: string, authorizationBearerToken: string, namespace: string, selector: string, dashboardBaseUrl: string): Promise<PipelineRun[]> {  
-      const pipelineRuns = await getPipelineRuns(baseUrl, authorizationBearerToken, namespace, selector, dashboardBaseUrl)
+      let [pipelineRuns, taskRuns] = await Promise.all([getPipelineRuns(baseUrl, authorizationBearerToken, namespace, selector, dashboardBaseUrl), getTaskRunsForMicroservice(baseUrl, authorizationBearerToken, namespace, selector)])
+ 
       for (const pipelineRun of pipelineRuns) {
-        const taskRuns = await getTaskRunsForPipelineRun(baseUrl, authorizationBearerToken, namespace, pipelineRun.metadata.name)
+        var taskRunsForPipelineRun: Array<TaskRun> = [];
         for (const taskRun of taskRuns) {
-          await getLogsForTaskRun(baseUrl, authorizationBearerToken, namespace, taskRun)
+          var pipelineRunNameLabel = taskRun.metadata.labels["tekton.dev/pipelineRun"]          
+          if (String(pipelineRunNameLabel) == pipelineRun.metadata.name) {
+            await getLogsForTaskRun(baseUrl, authorizationBearerToken, namespace, taskRun)
+            taskRunsForPipelineRun.push(taskRun);
+          }
         }
-        const taskRunsSorted = taskRuns.sort(
+        const taskRunsSorted = taskRunsForPipelineRun.sort(
           (taskRunA, taskRunB) => taskRunA.status.startTime.getTime() - taskRunB.status.startTime.getTime(),
         );        
         pipelineRun.taskRuns = taskRunsSorted
-      }
+
+        }
+      
       return pipelineRuns
 }
