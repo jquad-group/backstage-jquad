@@ -79,10 +79,10 @@ const getPipelineRuns = async (baseUrl: string, authorizationBearerToken: string
           Authorization: `Bearer ${authorizationBearerToken}`,
         },
       }).then((res: { json: () => any }) => res.json())
-    let prs: Array<PipelineRun> = []
+    const prs: Array<PipelineRun> = []
     if (response.items) {
 
-      let trs: Array<TaskRun> = [];
+      const trs: Array<TaskRun> = [];
       
       (response.items as PipelineRun[]).forEach(item => {
         const pr: PipelineRun = {
@@ -125,7 +125,7 @@ const getTaskRunsForMicroservice = async (baseUrl: string, authorizationBearerTo
         Authorization: `Bearer ${authorizationBearerToken}`,
       },
     }).then((res: { json: () => any }) => res.json())
-  let taskRuns: Array<TaskRun> = []
+  const taskRuns: Array<TaskRun> = []
   
   if (response.items) {      
     (response.items as TaskRun[]).forEach(item => {
@@ -172,12 +172,12 @@ const getLogsForTaskRun = async (baseUrl: string, authorizationBearerToken: stri
 }
 
 export async function getMicroservicePipelineRuns(baseUrl: string, authorizationBearerToken: string, namespace: string, selector: string, dashboardBaseUrl: string): Promise<PipelineRun[]> {  
-      let [pipelineRuns, taskRuns] = await Promise.all([getPipelineRuns(baseUrl, authorizationBearerToken, namespace, selector, dashboardBaseUrl), getTaskRunsForMicroservice(baseUrl, authorizationBearerToken, namespace, selector)])
+      const [pipelineRuns, taskRuns] = await Promise.all([getPipelineRuns(baseUrl, authorizationBearerToken, namespace, selector, dashboardBaseUrl), getTaskRunsForMicroservice(baseUrl, authorizationBearerToken, namespace, selector)])
  
       for (const pipelineRun of pipelineRuns) {
-        var taskRunsForPipelineRun: Array<TaskRun> = [];
+        const taskRunsForPipelineRun: Array<TaskRun> = [];
         for (const taskRun of taskRuns) {
-          var pipelineRunNameLabel = taskRun.metadata.labels["tekton.dev/pipelineRun"]          
+          const pipelineRunNameLabel = taskRun.metadata.labels["tekton.dev/pipelineRun"]          
           if (String(pipelineRunNameLabel) == pipelineRun.metadata.name) {
             await getLogsForTaskRun(baseUrl, authorizationBearerToken, namespace, taskRun)
             taskRunsForPipelineRun.push(taskRun);
