@@ -178,7 +178,7 @@ export async function getMicroservicePipelineRuns(baseUrl: string, authorization
     const taskRunsForPipelineRun: Array<TaskRun> = [];
     for (const taskRun of taskRuns) {
       const pipelineRunNameLabel = taskRun.metadata.labels["tekton.dev/pipelineRun"]
-      if (String(pipelineRunNameLabel) == pipelineRun.metadata.name) {
+      if (String(pipelineRunNameLabel) === pipelineRun.metadata.name) {
         await getLogsForTaskRun(baseUrl, authorizationBearerToken, namespace, taskRun)
         taskRunsForPipelineRun.push(taskRun);
       }
