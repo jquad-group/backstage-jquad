@@ -30,13 +30,16 @@ describe('createRouter', () => {
         {
           context: '',
           data: {
-            tekton: {
-              baseUrl: "baseUrl",
-              authorizationBearerToken: "authorizationBearerToken",
-            },
+            tekton: [
+              {
+                baseUrl: "baseUrl",
+                authorizationBearerToken: "authorizationBearerToken",
+              }
+            ]
+            ,
           },
         },
-    ]),
+      ]),
     });
     app = express().use(router);
   });
