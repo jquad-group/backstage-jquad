@@ -36,17 +36,17 @@ export async function createRouter(
   router.use(express.json());
 
   logger.info('Initializing tekton backend')
-  var tektonConfig: Config[] = config.getConfigArray('tekton')
+  const tektonConfig: Config[] = config.getConfigArray('tekton')
     router.get('/pipelineruns', async (request, response) => {
       const namespace: any = request.query.namespace
       const selector: any = request.query.selector
 
-      var result: Array<PipelineRun> = []
+      const result: Array<PipelineRun> = []
       for(const currentConfig of tektonConfig) {
     
-        var baseUrl: string = currentConfig.getString('baseUrl')
-        var authorizationBearerToken: string = currentConfig.getString('authorizationBearerToken')
-        var dashboardBaseUrl: string = currentConfig.getString('dashboardBaseUrl')
+        const baseUrl: string = currentConfig.getString('baseUrl')
+        const authorizationBearerToken: string = currentConfig.getString('authorizationBearerToken')
+        const dashboardBaseUrl: string = currentConfig.getString('dashboardBaseUrl')
     
         const pipelineruns = await getMicroservicePipelineRuns(
           baseUrl,

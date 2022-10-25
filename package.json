@@ -17,7 +17,7 @@
     "diff": "lerna run diff --",
     "test": "backstage-cli test",
     "test:all": "lerna run test -- --coverage",
-    "lint": "backstage-cli repo lint --since origin/master",
+    "lint": "backstage-cli repo lint --since origin/main",
     "lint:all": "backstage-cli repo lint",
     "prettier:check": "prettier --check .",
     "create-plugin": "backstage-cli create-plugin --scope internal",
@@ -40,11 +40,10 @@
   "resolutions": {
     "got": "^11.8.5",
     "jose": "^4.9.2",
-    "xmldom/xmldom": "^0.8.3",
     "parse-path": "^5.0.0",
     "terser": "^5.14.2",
     "file-type": "^16.5.4",
-    "ionicabizau/parse-url": "^8.1.0", 
+    "ionicabizau/parse-url": "^8.1.0",
     "passport-saml": "^3.2.2",
     "@types/react": "^17",
     "@types/react-dom": "^17"
