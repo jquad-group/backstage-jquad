@@ -40,7 +40,6 @@ export async function createRouter(
     router.get('/pipelineruns', async (request, response) => {
       const namespace: any = request.query.namespace
       const selector: any = request.query.selector
-
       const result: Array<PipelineRun> = []
       for(const currentConfig of tektonConfig) {
     

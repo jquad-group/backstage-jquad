@@ -29,7 +29,7 @@ export interface ServerOptions {
 export async function startStandaloneServer(
   options: ServerOptions,
 ): Promise<Server> {
-  const logger = options.logger.child({ service: 'tekton-pipelines-plugin-backend-backend' });
+  const logger = options.logger.child({ service: 'tekton-pipelines-backend' });
   logger.debug('Starting application server...');
 
   const config = await loadBackendConfig({
@@ -44,7 +44,7 @@ export async function startStandaloneServer(
 
   let service = createServiceBuilder(module)
     .setPort(options.port)
-    .addRouter('/tekton-pipelines-plugin-backend', router);
+    .addRouter('/tekton-pipelines-backend', router);
   if (options.enableCors) {
     service = service.enableCors({ origin: 'http://localhost:3000' });
   }

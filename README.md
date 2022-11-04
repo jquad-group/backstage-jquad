@@ -31,7 +31,7 @@ In your backstage app in `.\packages\app\src\components\catalog\EntityPage.tsx` 
  
 
 ```
-import { TektonPipelinesPluginPage, isTektonCiAvailable } from '@jquad-group/plugin-tekton-pipelines';
+import { EntityTektonPipelinesContent, isTektonCiAvailable } from '@jquad-group/plugin-tekton-pipelines';
 ...
 const serviceEntityPage = (
     ...
@@ -40,7 +40,7 @@ const serviceEntityPage = (
       <EntitySwitch>
 
         <EntitySwitch.Case if={e => Boolean(isTektonCiAvailable(e))}>
-          <TektonPipelinesPluginPage />
+          <EntityTektonPipelinesContent />
         </EntitySwitch.Case>
 
         <EntitySwitch.Case>
@@ -59,7 +59,7 @@ const serviceEntityPage = (
     
 ```
 
-In the `packages/backend/src/plugins`, add the following `tekton.ts` file:
+In the `packages/backend/src/plugins`, add the following `tekton-pipelines.ts` file:
 
 ```
 import { createRouter } from '@jquad-group/plugin-tekton-pipelines-backend';
@@ -81,7 +81,7 @@ In the `packages/backend/src/index.ts`, add the following:
 
 ```diff
  import search from './plugins/search';
-+import tekton from './plugins/tekton';
++import tekton from './plugins/tekton-pipelines';
  import { PluginEnvironment } from './types';
  import { ServerPermissionClient } from '@backstage/plugin-permission-node';
  import { DefaultIdentityClient } from '@backstage/plugin-auth-node'
@@ -97,7 +97,7 @@ In the `packages/backend/src/index.ts`, add the following:
    apiRouter.use('/techdocs', await techdocs(techdocsEnv));
    apiRouter.use('/proxy', await proxy(proxyEnv));
    apiRouter.use('/search', await search(searchEnv));
-+  apiRouter.use('/tekton', await tekton(tektonEnv) )
++  apiRouter.use('/tekton-pipelines', await tekton(tektonEnv) )
  
 
 ```
