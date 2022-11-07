@@ -1,3 +1,9 @@
+/** @public */
+export interface PipelineRunsByEntityRequest {
+  //auth: KubernetesRequestAuth;
+  entity: Entity;
+}
+
 export interface PipelineRunsByEntityResponse {
   items: PipelineRun[];
 }
