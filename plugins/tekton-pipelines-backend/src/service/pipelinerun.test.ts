@@ -32,11 +32,6 @@ describe('createRouter', () => {
 
       expect(response.statusType).toEqual(5)
       
-      //expect(Array.isArray(response.body)).toBeTruthy()
-
-      //expect(response.body[0]).toHaveProperty('name')
-      //expect(response.body[0]).toHaveProperty('namespace')
-      //expect(response.body[0]).toHaveProperty('status')
     }, 10000)
     
   })
