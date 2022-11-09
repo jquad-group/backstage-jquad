@@ -71,7 +71,7 @@ import {
 import { TechDocsAddons } from '@backstage/plugin-techdocs-react';
 import { ReportIssue } from '@backstage/plugin-techdocs-module-addons-contrib';
 
-import { EntityTektonPipelinesContent, isTektonCiAvailable } from '@jquad-group/plugin-tekton-pipelines';
+import { TektonPipelinesPluginPage, isTektonCiAvailable } from '@jquad-group/plugin-tekton-pipelines';
 
 const techdocsContent = (
   <EntityTechdocsContent>
@@ -187,7 +187,7 @@ const serviceEntityPage = (
     <EntityLayout.Route path="/tekton-pipelines" title="Tekton Pipelines">
     <EntitySwitch>
     <EntitySwitch.Case if={e => Boolean(isTektonCiAvailable(e))}>
-      <EntityTektonPipelinesContent />
+      <TektonPipelinesPluginPage />
     </EntitySwitch.Case>
 
     <EntitySwitch.Case>
