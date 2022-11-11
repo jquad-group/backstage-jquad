@@ -1,4 +1,7 @@
+/* ignore lint error for internal dependencies */
+/* eslint-disable */
 import { PipelineRun, TaskRun } from '@jquad-group/plugin-tekton-pipelines-common'
+/* eslint-enable */
 import fetch from 'node-fetch'
 
 const getPipelineRuns = async (baseUrl: string, authorizationBearerToken: string, namespace: string, selector: string, dashboardBaseUrl: string): Promise<PipelineRun[]> => {

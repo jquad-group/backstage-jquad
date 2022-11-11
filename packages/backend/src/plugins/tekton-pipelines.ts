@@ -1,4 +1,8 @@
+
+/* ignore lint error for internal dependencies */
+/* eslint-disable */
 import { createRouter } from '@jquad-group/plugin-tekton-pipelines-backend';
+/* eslint-enable */
 import { Router } from 'express';
 import { PluginEnvironment } from '../types';
 

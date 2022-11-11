@@ -4,8 +4,10 @@ import Router from 'express-promise-router';
 import { Logger } from 'winston';
 import { Config } from '@backstage/config'
 import { getMicroservicePipelineRuns } from './pipelinerun';
+/* ignore lint error for internal dependencies */
+/* eslint-disable */
 import { PipelineRun } from '@jquad-group/plugin-tekton-pipelines-common';
-
+/* eslint-enable */
 export interface RouterOptions {
   logger: Logger;
   config: Config;
