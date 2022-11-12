@@ -21,17 +21,21 @@ tekton:
 
 (Optional) If you have a newly cloned backstage application run `yarn install` from the root of the application.
 
-In order to add the tekton plugin in your backstage app, you need to run the following commands from the root directory:
+In order to add the tekton plugin in your backstage app, you need to:
 
-`yarn workspace example-app add -cwd packages/app @jquad-group/plugin-tekton-pipelines@0.1.2`
+- add the frontend plugin from the `packages/app` directory using:
 
-`yarn workspace example-app add -cwd packages/backend @jquad-group/plugin-tekton-pipelines-backend@0.1.2`
+`yarn add @jquad-group/plugin-tekton-pipelines@0.2.0`
+
+- add the backend plugin from the `packages/backend` directory using:
+
+`yarn add @jquad-group/plugin-tekton-pipelines-backend@0.2.0`
 
 In your backstage app in `.\packages\app\src\components\catalog\EntityPage.tsx` add the following:
  
 
 ```
-import { TektonPipelinesPluginPage, isTektonCiAvailable } from '@jquad-group/plugin-tekton-pipelines';
+import { EntityTektonPipelinesContent, isTektonCiAvailable } from '@jquad-group/plugin-tekton-pipelines';
 ...
 const serviceEntityPage = (
     ...
@@ -40,7 +44,7 @@ const serviceEntityPage = (
       <EntitySwitch>
 
         <EntitySwitch.Case if={e => Boolean(isTektonCiAvailable(e))}>
-          <TektonPipelinesPluginPage />
+          <EntityTektonPipelinesContent />
         </EntitySwitch.Case>
 
         <EntitySwitch.Case>
@@ -59,7 +63,7 @@ const serviceEntityPage = (
     
 ```
 
-In the `packages/backend/src/plugins`, add the following `tekton.ts` file:
+In the `packages/backend/src/plugins`, add the following `tekton-pipelines.ts` file:
 
 ```
 import { createRouter } from '@jquad-group/plugin-tekton-pipelines-backend';
@@ -81,7 +85,7 @@ In the `packages/backend/src/index.ts`, add the following:
 
 ```diff
  import search from './plugins/search';
-+import tekton from './plugins/tekton';
++import tekton from './plugins/tekton-pipelines';
  import { PluginEnvironment } from './types';
  import { ServerPermissionClient } from '@backstage/plugin-permission-node';
  import { DefaultIdentityClient } from '@backstage/plugin-auth-node'
@@ -97,7 +101,7 @@ In the `packages/backend/src/index.ts`, add the following:
    apiRouter.use('/techdocs', await techdocs(techdocsEnv));
    apiRouter.use('/proxy', await proxy(proxyEnv));
    apiRouter.use('/search', await search(searchEnv));
-+  apiRouter.use('/tekton', await tekton(tektonEnv) )
++  apiRouter.use('/tekton-pipelines', await tekton(tektonEnv) )
  
 
 ```

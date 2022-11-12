@@ -1,14 +1,12 @@
-# tekton-pipelines-plugin-backend
+# Tekton Pipelines Backend Plugin
 
-Welcome to the tekton-pipelines-plugin-backend backend plugin!
+This is the Tekton Pipelines Backend part. 
 
 _This plugin was created through the Backstage CLI_
 
 ## Getting started
 
-Your plugin has been added to the example app in this repository, meaning you'll be able to access it by running `yarn
-start` in the root directory, and then navigating to [/tekton-pipelines-plugin-backend](http://localhost:3000/tekton-pipelines-plugin-backend).
+Access the backend  by running `yarn start` in the plugin directory, and then navigating to [/tekton-pipelines-backend](http://localhost:3000/tekton-pipelines-backend).
 
-You can also serve the plugin in isolation by running `yarn start` in the plugin directory.
 This method of serving the plugin provides quicker iteration speed and a faster startup and hot reloads.
 It is only meant for local development, and the setup for it can be found inside the [/dev](/dev) directory.
