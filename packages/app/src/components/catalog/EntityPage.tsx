@@ -70,6 +70,7 @@ import {
 
 import { TechDocsAddons } from '@backstage/plugin-techdocs-react';
 import { ReportIssue } from '@backstage/plugin-techdocs-module-addons-contrib';
+/* ignore lint error for internal dependencies */
 /* eslint-disable */
 import {EntityTektonPipelinesContent,isTektonCiAvailable } from '@jquad-group/plugin-tekton-pipelines';
 /* eslint-enable */
@@ -187,7 +188,7 @@ const serviceEntityPage = (
     <EntityLayout.Route path="/tekton-pipelines" title="Tekton Pipelines">
       <EntitySwitch>
         <EntitySwitch.Case if={e => Boolean(isTektonCiAvailable(e))}>
-          <EntityTektonPipelinesContent />
+          <EntityTektonPipelinesContent refreshIntervalMs={5000}/>
         </EntitySwitch.Case>
 
         <EntitySwitch.Case>
