@@ -5,10 +5,9 @@ import {
   Header,
   HeaderLabel,
   Page,
-  Progress,
-  SupportButton,
-} from '@backstage/core-components';
 
+  SupportButton
+} from '@backstage/core-components';
 /* ignore lint error for internal dependencies */
 /* eslint-disable */
 import { PipelineRun } from '@jquad-group/plugin-tekton-pipelines-common';
@@ -19,8 +18,11 @@ import React, { useEffect, useState } from 'react';
 import { getTektonApi } from '../../api/types';
 import logger from '../../logging/logger';
 import { CollapsibleTable } from '../CollapsibleTable';
+import { AnimatedProgressbar } from '../AnimatedProgressbar';
 
-const DEFAULT_REFRESH_INTERVALL = 10000;
+
+
+const DEFAULT_REFRESH_INTERVALL = 1000000;
 
 type TektonContentProps = {
   entity: Entity;
@@ -78,7 +80,9 @@ export function TektonDashboardComponent(props: TektonContentProps) {
   }, [props.entity]);
 
   if (loading) {
-    return <Progress />;
+    return (
+      <AnimatedProgressbar/>
+    );
   } else if (error) {
     return <Alert severity="error">{error}</Alert>;
   }
