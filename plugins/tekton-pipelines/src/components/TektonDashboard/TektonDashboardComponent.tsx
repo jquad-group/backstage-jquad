@@ -5,8 +5,7 @@ import {
   Header,
   HeaderLabel,
   Page,
-
-  SupportButton
+  SupportButton,
 } from '@backstage/core-components';
 /* ignore lint error for internal dependencies */
 /* eslint-disable */
@@ -20,9 +19,7 @@ import logger from '../../logging/logger';
 import { CollapsibleTable } from '../CollapsibleTable';
 import { AnimatedProgressbar } from '../AnimatedProgressbar';
 
-
-
-const DEFAULT_REFRESH_INTERVALL = 1000000;
+const DEFAULT_REFRESH_INTERVALL = 10000;
 
 type TektonContentProps = {
   entity: Entity;
@@ -75,17 +72,8 @@ export function TektonDashboardComponent(props: TektonContentProps) {
           setError(error.toString());
         });
     }, props.refreshIntervalMs || DEFAULT_REFRESH_INTERVALL);
-    return (() => clearInterval(interval));
-
+    return () => clearInterval(interval);
   }, [props.entity]);
-
-  if (loading) {
-    return (
-      <AnimatedProgressbar/>
-    );
-  } else if (error) {
-    return <Alert severity="error">{error}</Alert>;
-  }
 
   logger.debug('TektonDashboardComponent Rendering Tekton Pipelines');
 
@@ -95,18 +83,26 @@ export function TektonDashboardComponent(props: TektonContentProps) {
         <HeaderLabel label="Owner" value="Team Y" />
         <HeaderLabel label="Lifecycle" value="Alpha" />
       </Header>
-      <Content>
-        <ContentHeader title="PipelineRuns">
-          <SupportButton>PipelineRuns</SupportButton>
-        </ContentHeader>
-        <Grid container spacing={3} direction="column">
-          <Grid item>
-            {pipelineRuns !== null && pipelineRuns?.length > 0 && (
-              <CollapsibleTable pipelineruns={pipelineRuns} />
-            )}
+      {error && (
+        <Content>
+          <Alert severity="error">{error}</Alert>
+        </Content>
+      )}
+      {loading && <AnimatedProgressbar />}
+      {!loading && !error && (
+        <Content>
+          <ContentHeader title="PipelineRuns">
+            <SupportButton>PipelineRuns</SupportButton>
+          </ContentHeader>
+          <Grid container spacing={3} direction="column">
+            <Grid item>
+              {pipelineRuns !== null && pipelineRuns?.length > 0 && (
+                <CollapsibleTable pipelineruns={pipelineRuns} />
+              )}
+            </Grid>
           </Grid>
-        </Grid>
-      </Content>
+        </Content>
+      )}
     </Page>
   );
 }

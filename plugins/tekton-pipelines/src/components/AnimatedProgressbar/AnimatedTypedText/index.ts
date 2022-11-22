@@ -1,1 +1,0 @@
-export { AnimatedTypedText } from './AnimatedTypedText';

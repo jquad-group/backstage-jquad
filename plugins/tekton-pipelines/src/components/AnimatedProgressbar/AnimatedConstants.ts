@@ -1,0 +1,1 @@
+export const ANIMATED_STEP = 10

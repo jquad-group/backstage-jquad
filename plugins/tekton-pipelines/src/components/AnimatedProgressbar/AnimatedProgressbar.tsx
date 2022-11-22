@@ -1,24 +1,30 @@
-import { Content, Progress, ContentHeader } from '@backstage/core-components';
+import { Content, ContentHeader, Progress } from '@backstage/core-components';
 import React, { useEffect, useState } from 'react';
-import { ANIMATED_STEP } from './Sign';
-import { AnimatedText } from './AnimatedText';
+import { ANIMATED_STEP } from './AnimatedConstants';
+import AnimatedText from './AnimatedText';
 
 type AnimatedProgressbarProps = {
   refreshIntervalMs?: number;
 };
 
 export function AnimatedProgressbar(props: AnimatedProgressbarProps) {
-  
-  const [text, setText] = useState(new AnimatedText("Pipelines"))
-  const [title, setTitle] = useState('');
+  const [animatedTexts] = useState([
+    new AnimatedText('Tekton Pipelines', 1000, 500),
+    new AnimatedText('A Backstage Plugin by JQuad', 500, 500),
+    new AnimatedText('Visit JQuad.de :) ', 500, 1e10),
+  ]);
 
-  
+  const [titles, setTitles] = useState(['', '', '']);
+
   useEffect(() => {
     const interval = setInterval(() => {
-      if (text.isTicking()) {
-        text.tick();
+      for (const animatedText of animatedTexts) {
+        if (animatedText.isTicking()) {
+          animatedText.tick();
+          break;
+        }
       }
-      setTitle(text.getText());
+      setTitles(animatedTexts.map(animatedText => animatedText.getText()));
     }, ANIMATED_STEP);
     return () => {
       clearInterval(interval);
@@ -27,7 +33,10 @@ export function AnimatedProgressbar(props: AnimatedProgressbarProps) {
   return (
     <Content>
       <Progress />
-      <ContentHeader title={title} />
+      <br/>
+      {titles.map((title, i) => (
+        <ContentHeader title={title} key={i} />
+      ))}
     </Content>
   );
 }
