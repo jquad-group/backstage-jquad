@@ -156,7 +156,7 @@ const getTaskRunsForMicroservice = async (
           currentStep.terminated.durationString = "";
         }      
       } else {
-        let currTerminated: Terminated = {
+        const currTerminated: Terminated = {
           startedAt: new Date(0),
           finishedAt: new Date(0),
           duration: 0,
