@@ -33,11 +33,11 @@ const getPipelineRuns = async (
     const trs: Array<TaskRun> = [];
 
     (response.items as PipelineRun[]).forEach(item => {
-      var currStartTime: Date;
-      var currCompletionTime: Date; 
-      var currDuration: number;
-      var currDurationString: string;
-      if ((item.status.completionTime != null) && (item.status.startTime != null)){
+      let currStartTime: Date;
+      let currCompletionTime: Date; 
+      let currDuration: number;
+      let currDurationString: string;
+      if ((item.status.completionTime !== null) && (item.status.startTime !== null)){
           currCompletionTime = new Date(item.status.completionTime);
           currStartTime = new Date(item.status.startTime);
           currDuration = (currCompletionTime.getTime() - currStartTime.getTime()) / 1000;
@@ -49,7 +49,7 @@ const getPipelineRuns = async (
         )
           .toISOString()
           .slice(11, 19);
-      } else if ((item.status.completionTime == null) && (item.status.startTime != null)) {
+      } else if ((item.status.completionTime === null) && (item.status.startTime !== null)) {
         currCompletionTime = new Date(0);        
         currStartTime = new Date(item.status.startTime);
         currDuration = 0;
@@ -106,11 +106,11 @@ const getTaskRunsForMicroservice = async (
 
   if (response.items) {
     (response.items as TaskRun[]).forEach(item => {
-      var currCompletionTime: Date; 
-      var currDuration: number;
-      var currDurationString: string;
-      var currStartTime: Date;
-      if ((item.status.completionTime != null) && (item.status.startTime != null)) {
+      let currCompletionTime: Date; 
+      let currDuration: number;
+      let currDurationString: string;
+      let currStartTime: Date;
+      if ((item.status.completionTime !== null) && (item.status.startTime !== null)) {
         currCompletionTime = new Date(item.status.completionTime);
         currStartTime = new Date(item.status.startTime);
         currDuration = (currCompletionTime.getTime() - currStartTime.getTime()) / 1000;
@@ -122,7 +122,7 @@ const getTaskRunsForMicroservice = async (
       )
         .toISOString()
         .slice(11, 19);
-    } else if ((item.status.completionTime == null) && (item.status.startTime != null)) {
+    } else if ((item.status.completionTime === null) && (item.status.startTime !== null)) {
       currStartTime = new Date(item.status.startTime);
       currCompletionTime = new Date(0);
       currDuration = 0;
@@ -135,7 +135,7 @@ const getTaskRunsForMicroservice = async (
     }
     (item.status.steps as Step[]).forEach(currentStep => {
       if (currentStep.terminated != null) {
-        if ((currentStep.terminated.finishedAt != null) && (currentStep.terminated.startedAt != null)) {
+        if ((currentStep.terminated.finishedAt !== null) && (currentStep.terminated.startedAt !== null)) {
           currentStep.terminated.durationString = new Date(
             ((new Date(currentStep.terminated.finishedAt).getTime() -
               new Date(currentStep.terminated.startedAt).getTime()) /
@@ -144,7 +144,7 @@ const getTaskRunsForMicroservice = async (
           )
             .toISOString()
             .slice(11, 19);
-        } else if ((currentStep.terminated.startedAt != null) && (currentStep.terminated.finishedAt == null)) {
+        } else if ((currentStep.terminated.startedAt !== null) && (currentStep.terminated.finishedAt === null)) {
           currentStep.terminated.finishedAt = new Date(0);
           currentStep.terminated.startedAt = new Date(currentStep.terminated.startedAt);
           currentStep.terminated.duration = 0;
