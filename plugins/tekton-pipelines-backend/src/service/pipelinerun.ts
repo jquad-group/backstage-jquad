@@ -134,7 +134,7 @@ const getTaskRunsForMicroservice = async (
       currDurationString = "";
     }
     (item.status.steps as Step[]).forEach(currentStep => {
-      if (currentStep.terminated != null) {
+      if (currentStep.terminated !== null) {
         if ((currentStep.terminated.finishedAt !== null) && (currentStep.terminated.startedAt !== null)) {
           currentStep.terminated.durationString = new Date(
             ((new Date(currentStep.terminated.finishedAt).getTime() -
@@ -156,7 +156,7 @@ const getTaskRunsForMicroservice = async (
           currentStep.terminated.durationString = "";
         }      
       } else {
-        var currTerminated: Terminated = {
+        let currTerminated: Terminated = {
           startedAt: new Date(0),
           finishedAt: new Date(0),
           duration: 0,
