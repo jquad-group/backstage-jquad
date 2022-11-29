@@ -2,7 +2,9 @@
 /* eslint-disable */
 import {
   PipelineRun,
+  Step,
   TaskRun,
+  Terminated,
 } from '@jquad-group/plugin-tekton-pipelines-common';
 /* eslint-enable */
 import fetch from 'node-fetch';
@@ -31,6 +33,33 @@ const getPipelineRuns = async (
     const trs: Array<TaskRun> = [];
 
     (response.items as PipelineRun[]).forEach(item => {
+      var currStartTime: Date;
+      var currCompletionTime: Date; 
+      var currDuration: number;
+      var currDurationString: string;
+      if ((item.status.completionTime != null) && (item.status.startTime != null)){
+          currCompletionTime = new Date(item.status.completionTime);
+          currStartTime = new Date(item.status.startTime);
+          currDuration = (currCompletionTime.getTime() - currStartTime.getTime()) / 1000;
+        currDurationString = new Date(
+          ((currCompletionTime.getTime() -
+            currStartTime.getTime()) /
+            1000) *
+            1000,
+        )
+          .toISOString()
+          .slice(11, 19);
+      } else if ((item.status.completionTime == null) && (item.status.startTime != null)) {
+        currCompletionTime = new Date(0);        
+        currStartTime = new Date(item.status.startTime);
+        currDuration = 0;
+        currDurationString = "";
+      } else {
+        currCompletionTime = new Date(0);        
+        currStartTime = new Date(0);
+        currDuration = 0;
+        currDurationString = "";
+      }
       const pr: PipelineRun = {
         metadata: {
           name: item.metadata.name,
@@ -41,20 +70,10 @@ const getPipelineRuns = async (
         taskRuns: trs,
         status: {
           conditions: [item.status.conditions[0]],
-          startTime: new Date(item.status.startTime),
-          completionTime: new Date(item.status.completionTime),
-          duration:
-            (new Date(item.status.completionTime).getTime() -
-              new Date(item.status.startTime).getTime()) /
-            1000,
-          durationString: new Date(
-            ((new Date(item.status.completionTime).getTime() -
-              new Date(item.status.startTime).getTime()) /
-              1000) *
-              1000,
-          )
-            .toISOString()
-            .slice(11, 19),
+          startTime: currStartTime,
+          completionTime: currCompletionTime,
+          duration: currDuration,
+          durationString: currDurationString,
         },
       };
 
@@ -87,7 +106,68 @@ const getTaskRunsForMicroservice = async (
 
   if (response.items) {
     (response.items as TaskRun[]).forEach(item => {
-      const taskRun: TaskRun = {
+      var currCompletionTime: Date; 
+      var currDuration: number;
+      var currDurationString: string;
+      var currStartTime: Date;
+      if ((item.status.completionTime != null) && (item.status.startTime != null)) {
+        currCompletionTime = new Date(item.status.completionTime);
+        currStartTime = new Date(item.status.startTime);
+        currDuration = (currCompletionTime.getTime() - currStartTime.getTime()) / 1000;
+      currDurationString = new Date(
+        ((currCompletionTime.getTime() -
+          currStartTime.getTime()) /
+          1000) *
+          1000,
+      )
+        .toISOString()
+        .slice(11, 19);
+    } else if ((item.status.completionTime == null) && (item.status.startTime != null)) {
+      currStartTime = new Date(item.status.startTime);
+      currCompletionTime = new Date(0);
+      currDuration = 0;
+      currDurationString = "";
+    } else {
+      currStartTime = new Date(0);
+      currCompletionTime = new Date(0);
+      currDuration = 0;
+      currDurationString = "";
+    }
+    (item.status.steps as Step[]).forEach(currentStep => {
+      if (currentStep.terminated != null) {
+        if ((currentStep.terminated.finishedAt != null) && (currentStep.terminated.startedAt != null)) {
+          currentStep.terminated.durationString = new Date(
+            ((new Date(currentStep.terminated.finishedAt).getTime() -
+              new Date(currentStep.terminated.startedAt).getTime()) /
+              1000) *
+              1000,
+          )
+            .toISOString()
+            .slice(11, 19);
+        } else if ((currentStep.terminated.startedAt != null) && (currentStep.terminated.finishedAt == null)) {
+          currentStep.terminated.finishedAt = new Date(0);
+          currentStep.terminated.startedAt = new Date(currentStep.terminated.startedAt);
+          currentStep.terminated.duration = 0;
+          currentStep.terminated.durationString = "";
+        } else {
+          currentStep.terminated.startedAt = new Date(0);
+          currentStep.terminated.finishedAt = new Date(0);
+          currentStep.terminated.duration = 0;
+          currentStep.terminated.durationString = "";
+        }      
+      } else {
+        var currTerminated: Terminated = {
+          startedAt: new Date(0),
+          finishedAt: new Date(0),
+          duration: 0,
+          durationString: "",
+          reason: ""
+        }
+        currentStep.terminated = currTerminated;
+      }
+    }
+  )
+   const taskRun: TaskRun = {
         metadata: {
           name: item.metadata.name,
           namespace: item.metadata.namespace,
@@ -97,20 +177,10 @@ const getTaskRunsForMicroservice = async (
           conditions: [item.status.conditions[0]],
           steps: item.status.steps,
           podName: item.status.podName,
-          startTime: new Date(item.status.startTime),
-          completionTime: new Date(item.status.completionTime),
-          duration:
-            (new Date(item.status.completionTime).getTime() -
-              new Date(item.status.startTime).getTime()) /
-            1000,
-          durationString: new Date(
-            ((new Date(item.status.completionTime).getTime() -
-              new Date(item.status.startTime).getTime()) /
-              1000) *
-              1000,
-          )
-            .toISOString()
-            .slice(11, 19),
+          startTime: currStartTime,
+          completionTime: currCompletionTime,
+          duration: currDuration,
+          durationString: currDurationString,
         },
       };
       taskRuns.push(taskRun);
@@ -133,17 +203,7 @@ const getLogsForTaskRun = async (
         Authorization: `Bearer ${authorizationBearerToken}`,
       },
     });
-    currentStep.terminated.durationString = new Date(
-      ((new Date(currentStep.terminated.finishedAt).getTime() -
-        new Date(currentStep.terminated.startedAt).getTime()) /
-        1000) *
-        1000,
-    )
-      .toISOString()
-      .slice(11, 19);
-    currentStep.terminated.startedAt = new Date(
-      currentStep.terminated.startedAt,
-    );
+
     const decoded = await response.text();
     currentStep.log = decoded;
   }
