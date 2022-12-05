@@ -3,7 +3,7 @@ import express from 'express';
 import Router from 'express-promise-router';
 import { Logger } from 'winston';
 import { Config } from '@backstage/config'
-import { getMicroservicePipelineRuns } from './pipelinerun';
+import { getMicroservicePipelineRuns, getLogs } from './pipelinerun';
 /* ignore lint error for internal dependencies */
 /* eslint-disable */
 import { PipelineRun } from '@jquad-group/plugin-tekton-pipelines-common';
@@ -48,6 +48,26 @@ export async function createRouter(
       }
       response.send(result)
     })
+
+    router.get('/logs', async (request, response) => {
+      const namespace: any = request.query.namespace
+      const taskRunPodName: any = request.query.taskRunPodName
+      const stepContainer: any = request.query.stepContainer
+
+      const baseUrl: string = tektonConfig[0].getString('baseUrl')
+      const authorizationBearerToken: string = tektonConfig[0].getString('authorizationBearerToken')
+
+      const logs = await getLogs(
+        baseUrl,
+        authorizationBearerToken,
+        namespace,
+        taskRunPodName,
+        stepContainer,
+      )
+      console.log("LISTING LOGS FROM BACKEND")
+      console.log(logs)
+      response.send(logs)
+    })    
   
   router.get('/health', (_, response) => {
     logger.info('PONG!');

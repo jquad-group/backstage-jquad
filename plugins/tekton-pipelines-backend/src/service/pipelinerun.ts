@@ -237,15 +237,19 @@ export async function getMicroservicePipelineRuns(
     for (const taskRun of taskRuns) {
       const pipelineRunNameLabel =
         taskRun.metadata.labels['tekton.dev/pipelineRun'];
+      
       if (String(pipelineRunNameLabel) === pipelineRun.metadata.name) {
+        /*
         await getLogsForTaskRun(
           baseUrl,
           authorizationBearerToken,
           namespace,
           taskRun,
         );
+        */
         taskRunsForPipelineRun.push(taskRun);
       }
+      
     }
     const taskRunsSorted = taskRunsForPipelineRun.sort(
       (taskRunA, taskRunB) =>
@@ -257,3 +261,24 @@ export async function getMicroservicePipelineRuns(
 
   return pipelineRuns;
 }
+
+export async function getLogs(
+  baseUrl: string,
+  authorizationBearerToken: string,
+  namespace: string,
+  taskRunPodName: string,
+  stepContainer: string,
+): Promise<string> {
+ 
+    const url = `${baseUrl}/api/v1/namespaces/${namespace}/pods/${taskRunPodName}/log?container=${stepContainer}`;
+    const response = await fetch(url, {
+      headers: {
+        'Content-Type': 'plain/text',
+        Authorization: `Bearer ${authorizationBearerToken}`,
+      },
+    });
+
+    const decoded = await response.text();
+    return decoded;
+ 
+};
