@@ -64,8 +64,7 @@ export async function createRouter(
         taskRunPodName,
         stepContainer,
       )
-      console.log("LISTING LOGS FROM BACKEND")
-      console.log(logs)
+
       response.send(logs)
     })    
   
