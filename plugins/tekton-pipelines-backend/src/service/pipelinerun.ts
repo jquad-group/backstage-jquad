@@ -21,18 +21,17 @@ const getPipelineRuns = async (
     url = `${baseUrl}/apis/tekton.dev/v1beta1/namespaces/${namespace}/pipelineruns?labelSelector=${selector}`;
   } else {
     url = `${baseUrl}/apis/tekton.dev/v1beta1/namespaces/${namespace}/pipelineruns`;
-  }
+  }  
   const response = await fetch(url, {
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${authorizationBearerToken}`,
     },
-  }).then((response) => {
-    if (!response.ok) {    
+  }).then((res) => {
+    if (!res.ok) {    
       return Promise.reject(500)
-    } else {
-      return response.json();
     }
+    return res.json();
   }  
   )
   const prs: Array<PipelineRun> = [];
