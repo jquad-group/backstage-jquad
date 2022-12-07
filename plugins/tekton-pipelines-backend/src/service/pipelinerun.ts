@@ -2,7 +2,9 @@
 /* eslint-disable */
 import {
   PipelineRun,
+  Step,
   TaskRun,
+  Terminated,
 } from '@jquad-group/plugin-tekton-pipelines-common';
 /* eslint-enable */
 import fetch from 'node-fetch';
@@ -19,18 +21,51 @@ const getPipelineRuns = async (
     url = `${baseUrl}/apis/tekton.dev/v1beta1/namespaces/${namespace}/pipelineruns?labelSelector=${selector}`;
   } else {
     url = `${baseUrl}/apis/tekton.dev/v1beta1/namespaces/${namespace}/pipelineruns`;
-  }
+  }  
   const response = await fetch(url, {
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${authorizationBearerToken}`,
     },
-  }).then((res: { json: () => any }) => res.json());
+  }).then((res) => {
+    if (!res.ok) {    
+      return Promise.reject(500)
+    }
+    return res.json();
+  }  
+  )
   const prs: Array<PipelineRun> = [];
   if (response.items) {
     const trs: Array<TaskRun> = [];
 
     (response.items as PipelineRun[]).forEach(item => {
+      let currStartTime: Date;
+      let currCompletionTime: Date; 
+      let currDuration: number;
+      let currDurationString: string;
+      if ((item.status.completionTime !== undefined) && (item.status.startTime !== undefined)){        
+          currCompletionTime = new Date(item.status.completionTime);
+          currStartTime = new Date(item.status.startTime);
+          currDuration = (currCompletionTime.getTime() - currStartTime.getTime()) / 1000;
+        currDurationString = new Date(
+          ((currCompletionTime.getTime() -
+            currStartTime.getTime()) /
+            1000) *
+            1000,
+        )
+          .toISOString()
+          .slice(11, 19);
+      } else if ((item.status.completionTime === undefined) && (item.status.startTime !== undefined)) {
+        currCompletionTime = new Date(0);        
+        currStartTime = new Date(item.status.startTime);
+        currDuration = 0;
+        currDurationString = "";
+      } else {
+        currCompletionTime = new Date(0);        
+        currStartTime = new Date(0);
+        currDuration = 0;
+        currDurationString = "";
+      }
       const pr: PipelineRun = {
         metadata: {
           name: item.metadata.name,
@@ -41,20 +76,10 @@ const getPipelineRuns = async (
         taskRuns: trs,
         status: {
           conditions: [item.status.conditions[0]],
-          startTime: new Date(item.status.startTime),
-          completionTime: new Date(item.status.completionTime),
-          duration:
-            (new Date(item.status.completionTime).getTime() -
-              new Date(item.status.startTime).getTime()) /
-            1000,
-          durationString: new Date(
-            ((new Date(item.status.completionTime).getTime() -
-              new Date(item.status.startTime).getTime()) /
-              1000) *
-              1000,
-          )
-            .toISOString()
-            .slice(11, 19),
+          startTime: currStartTime,
+          completionTime: currCompletionTime,
+          duration: currDuration,
+          durationString: currDurationString,
         },
       };
 
@@ -87,7 +112,68 @@ const getTaskRunsForMicroservice = async (
 
   if (response.items) {
     (response.items as TaskRun[]).forEach(item => {
-      const taskRun: TaskRun = {
+      let currCompletionTime: Date; 
+      let currDuration: number;
+      let currDurationString: string;
+      let currStartTime: Date;
+      if ((item.status.completionTime !== undefined) && (item.status.startTime !== undefined)) {
+        currCompletionTime = new Date(item.status.completionTime);
+        currStartTime = new Date(item.status.startTime);
+        currDuration = (currCompletionTime.getTime() - currStartTime.getTime()) / 1000;
+      currDurationString = new Date(
+        ((currCompletionTime.getTime() -
+          currStartTime.getTime()) /
+          1000) *
+          1000,
+      )
+        .toISOString()
+        .slice(11, 19);
+    } else if ((item.status.completionTime === undefined) && (item.status.startTime !== undefined)) {
+      currStartTime = new Date(item.status.startTime);
+      currCompletionTime = new Date(0);
+      currDuration = 0;
+      currDurationString = "";
+    } else {
+      currStartTime = new Date(0);
+      currCompletionTime = new Date(0);
+      currDuration = 0;
+      currDurationString = "";
+    }
+    (item.status.steps as Step[]).forEach(currentStep => {
+      if (currentStep.terminated !== undefined) {
+        if ((currentStep.terminated.finishedAt !== undefined) && (currentStep.terminated.startedAt !== undefined)) {
+          currentStep.terminated.durationString = new Date(
+            ((new Date(currentStep.terminated.finishedAt).getTime() -
+              new Date(currentStep.terminated.startedAt).getTime()) /
+              1000) *
+              1000,
+          )
+            .toISOString()
+            .slice(11, 19);
+        } else if ((currentStep.terminated.startedAt !== undefined) && (currentStep.terminated.finishedAt === undefined)) {
+          currentStep.terminated.finishedAt = new Date(0);
+          currentStep.terminated.startedAt = new Date(currentStep.terminated.startedAt);
+          currentStep.terminated.duration = 0;
+          currentStep.terminated.durationString = "";
+        } else {
+          currentStep.terminated.startedAt = new Date(0);
+          currentStep.terminated.finishedAt = new Date(0);
+          currentStep.terminated.duration = 0;
+          currentStep.terminated.durationString = "";
+        }      
+      } else {
+        const currTerminated: Terminated = {
+          startedAt: new Date(0),
+          finishedAt: new Date(0),
+          duration: 0,
+          durationString: "",
+          reason: ""
+        }
+        currentStep.terminated = currTerminated;
+      }
+    }
+  )
+   const taskRun: TaskRun = {
         metadata: {
           name: item.metadata.name,
           namespace: item.metadata.namespace,
@@ -97,20 +183,10 @@ const getTaskRunsForMicroservice = async (
           conditions: [item.status.conditions[0]],
           steps: item.status.steps,
           podName: item.status.podName,
-          startTime: new Date(item.status.startTime),
-          completionTime: new Date(item.status.completionTime),
-          duration:
-            (new Date(item.status.completionTime).getTime() -
-              new Date(item.status.startTime).getTime()) /
-            1000,
-          durationString: new Date(
-            ((new Date(item.status.completionTime).getTime() -
-              new Date(item.status.startTime).getTime()) /
-              1000) *
-              1000,
-          )
-            .toISOString()
-            .slice(11, 19),
+          startTime: currStartTime,
+          completionTime: currCompletionTime,
+          duration: currDuration,
+          durationString: currDurationString,
         },
       };
       taskRuns.push(taskRun);
@@ -133,17 +209,7 @@ const getLogsForTaskRun = async (
         Authorization: `Bearer ${authorizationBearerToken}`,
       },
     });
-    currentStep.terminated.durationString = new Date(
-      ((new Date(currentStep.terminated.finishedAt).getTime() -
-        new Date(currentStep.terminated.startedAt).getTime()) /
-        1000) *
-        1000,
-    )
-      .toISOString()
-      .slice(11, 19);
-    currentStep.terminated.startedAt = new Date(
-      currentStep.terminated.startedAt,
-    );
+
     const decoded = await response.text();
     currentStep.log = decoded;
   }
@@ -177,15 +243,19 @@ export async function getMicroservicePipelineRuns(
     for (const taskRun of taskRuns) {
       const pipelineRunNameLabel =
         taskRun.metadata.labels['tekton.dev/pipelineRun'];
+      
       if (String(pipelineRunNameLabel) === pipelineRun.metadata.name) {
+        /*
         await getLogsForTaskRun(
           baseUrl,
           authorizationBearerToken,
           namespace,
           taskRun,
         );
+        */
         taskRunsForPipelineRun.push(taskRun);
       }
+      
     }
     const taskRunsSorted = taskRunsForPipelineRun.sort(
       (taskRunA, taskRunB) =>
@@ -197,3 +267,24 @@ export async function getMicroservicePipelineRuns(
 
   return pipelineRuns;
 }
+
+export async function getLogs(
+  baseUrl: string,
+  authorizationBearerToken: string,
+  namespace: string,
+  taskRunPodName: string,
+  stepContainer: string,
+): Promise<string> {
+ 
+    const url = `${baseUrl}/api/v1/namespaces/${namespace}/pods/${taskRunPodName}/log?container=${stepContainer}`;
+    const response = await fetch(url, {
+      headers: {
+        'Content-Type': 'plain/text',
+        Authorization: `Bearer ${authorizationBearerToken}`,
+      },
+    });
+
+    const decoded = await response.text();
+    return decoded;
+ 
+};
