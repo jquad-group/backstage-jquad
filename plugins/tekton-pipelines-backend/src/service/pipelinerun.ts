@@ -27,7 +27,14 @@ const getPipelineRuns = async (
       'Content-Type': 'application/json',
       Authorization: `Bearer ${authorizationBearerToken}`,
     },
-  }).then((res: { json: () => any }) => res.json());
+  }).then((response) => {
+    if (!response.ok) {    
+      return Promise.reject(500)
+    } else {
+      return response.json();
+    }
+  }  
+  )
   const prs: Array<PipelineRun> = [];
   if (response.items) {
     const trs: Array<TaskRun> = [];
