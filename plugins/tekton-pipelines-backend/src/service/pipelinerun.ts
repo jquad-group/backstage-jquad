@@ -21,19 +21,34 @@ const getPipelineRuns = async (
     url = `${baseUrl}/apis/tekton.dev/v1beta1/namespaces/${namespace}/pipelineruns?labelSelector=${selector}`;
   } else {
     url = `${baseUrl}/apis/tekton.dev/v1beta1/namespaces/${namespace}/pipelineruns`;
-  }  
-  const response = await fetch(url, {
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${authorizationBearerToken}`,
-    },
-  }).then((res) => {
-    if (!res.ok) {    
-      return Promise.reject(500)
-    }
-    return res.json();
-  }  
-  )
+  }
+  let response: any
+  if (authorizationBearerToken !== "") {
+    response = await fetch(url, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authorizationBearerToken}`,
+        },
+      }).then((res) => {
+        if (!res.ok) {    
+          return Promise.reject(500)
+        }
+        return res.json();
+      }  
+      )
+  } else {
+    response = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then((res) => {
+      if (!res.ok) {    
+        return Promise.reject(500)
+      }
+      return res.json();
+    }  
+    )    
+  }
   const prs: Array<PipelineRun> = [];
   if (response.items) {
     const trs: Array<TaskRun> = [];
@@ -102,12 +117,21 @@ const getTaskRunsForMicroservice = async (
     url = `${baseUrl}/apis/tekton.dev/v1beta1/namespaces/${namespace}/taskruns`;
   }
 
-  const response = await fetch(url, {
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${authorizationBearerToken}`,
-    },
-  }).then((res: { json: () => any }) => res.json());
+  let response: any
+  if (authorizationBearerToken !== "") {
+    response = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authorizationBearerToken}`,
+      },
+    }).then((res: { json: () => any }) => res.json());
+  } else {
+    response = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then((res: { json: () => any }) => res.json());    
+  }
   const taskRuns: Array<TaskRun> = [];
 
   if (response.items) {
@@ -195,26 +219,6 @@ const getTaskRunsForMicroservice = async (
   return taskRuns;
 };
 
-const getLogsForTaskRun = async (
-  baseUrl: string,
-  authorizationBearerToken: string,
-  namespace: string,
-  taskRun: TaskRun,
-): Promise<void> => {
-  for (const currentStep of taskRun.status.steps) {
-    const url = `${baseUrl}/api/v1/namespaces/${namespace}/pods/${taskRun.status.podName}/log?container=${currentStep.container}`;
-    const response = await fetch(url, {
-      headers: {
-        'Content-Type': 'plain/text',
-        Authorization: `Bearer ${authorizationBearerToken}`,
-      },
-    });
-
-    const decoded = await response.text();
-    currentStep.log = decoded;
-  }
-};
-
 export async function getMicroservicePipelineRuns(
   baseUrl: string,
   authorizationBearerToken: string,
@@ -277,13 +281,21 @@ export async function getLogs(
 ): Promise<string> {
  
     const url = `${baseUrl}/api/v1/namespaces/${namespace}/pods/${taskRunPodName}/log?container=${stepContainer}`;
-    const response = await fetch(url, {
-      headers: {
-        'Content-Type': 'plain/text',
-        Authorization: `Bearer ${authorizationBearerToken}`,
-      },
-    });
-
+    let response: any
+    if (authorizationBearerToken !== "") {
+      response = await fetch(url, {
+        headers: {
+          'Content-Type': 'plain/text',
+          Authorization: `Bearer ${authorizationBearerToken}`,
+        },
+      });
+    } else {
+      response = await fetch(url, {
+        headers: {
+          'Content-Type': 'plain/text',
+        },
+      });
+    }
     const decoded = await response.text();
     return decoded;
  

@@ -30,7 +30,10 @@ export async function createRouter(
       for(const currentConfig of tektonConfig) {
     
         const baseUrl: string = currentConfig.getString('baseUrl')
-        const authorizationBearerToken: string = currentConfig.getString('authorizationBearerToken')
+        let authorizationBearerToken: string = ""
+        if (currentConfig.getOptionalString('authorizationBearerToken') !== undefined) {
+            authorizationBearerToken = currentConfig.getString('authorizationBearerToken')
+        }
         const dashboardBaseUrl: string = currentConfig.getString('dashboardBaseUrl')
     
         const pipelineruns = await getMicroservicePipelineRuns(
@@ -55,7 +58,11 @@ export async function createRouter(
       const stepContainer: any = request.query.stepContainer
 
       const baseUrl: string = tektonConfig[0].getString('baseUrl')
-      const authorizationBearerToken: string = tektonConfig[0].getString('authorizationBearerToken')
+
+      let authorizationBearerToken: string = ""
+      if (tektonConfig[0].getOptionalString('authorizationBearerToken') !== undefined) {
+          authorizationBearerToken = tektonConfig[0].getString('authorizationBearerToken')
+      }
 
       const logs = await getLogs(
         baseUrl,
