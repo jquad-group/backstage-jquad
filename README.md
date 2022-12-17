@@ -13,7 +13,7 @@ In the `app-config.yaml` the following properties must be set:
 ```
 tekton:
   - baseUrl: https://kubernetes-api-server:6443
-    authorizationBearerToken: TOKEN
+    authorizationBearerToken: TOKEN (remove this line, if you dont have auth enabled)
     dashboardBaseUrl: https://tekton-dashboard.myserver.com/
 ```
 
@@ -25,11 +25,11 @@ In order to add the tekton plugin in your backstage app, you need to:
 
 - add the frontend plugin from the `packages/app` directory using:
 
-`yarn add @jquad-group/plugin-tekton-pipelines@0.2.5`
+`yarn add @jquad-group/plugin-tekton-pipelines@0.2.6`
 
 - add the backend plugin from the `packages/backend` directory using:
 
-`yarn add @jquad-group/plugin-tekton-pipelines-backend@0.2.5`
+`yarn add @jquad-group/plugin-tekton-pipelines-backend@0.2.6`
 
 In your backstage app in `.\packages\app\src\components\catalog\EntityPage.tsx` add the following:
  
