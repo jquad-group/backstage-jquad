@@ -31,9 +31,9 @@ const getPipelineRuns = async (
           Authorization: `Bearer ${authorizationBearerToken}`,
         },
       }).then((res) => {
-        //if (!res.ok) {    
-        //  return Promise.reject(500)
-        //}
+        if (!res.ok) {    
+          throw new Error(`Calling ${url} failed with HTTP error status: ${res.statusText} ${res.status}`);
+        }
         return res.json();
       }  
       )
@@ -43,9 +43,9 @@ const getPipelineRuns = async (
         'Content-Type': 'application/json',
       },
     }).then((res) => {
-      //if (!res.ok) {    
-      //  return Promise.reject(500)
-      //}
+      if (!res.ok) {    
+        throw new Error(`Calling ${url} failed with HTTP error status: ${res.statusText} ${res.status}`);
+      }
       return res.json();
     }  
     )    
@@ -263,7 +263,7 @@ export async function getMicroservicePipelineRuns(
     pipelineRun.taskRuns = taskRunsSorted;
   }
 
-  let tempCluster = {} as Cluster
+  const tempCluster = {} as Cluster
   tempCluster.name = name
   tempCluster.pipelineRuns = pipelineRuns
   return tempCluster;

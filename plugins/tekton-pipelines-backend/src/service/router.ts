@@ -40,6 +40,8 @@ export async function createRouter(
         const dashboardBaseUrl: string = currentConfig.getString('dashboardBaseUrl')
         
         let cluster; 
+        const tempCluster = {} as Cluster
+        let errStr: string;
         try {
           cluster = await getMicroservicePipelineRuns(
           name,
@@ -49,19 +51,18 @@ export async function createRouter(
           selector,
           dashboardBaseUrl,          
         ) 
+        result.push(cluster)  
         } catch (error) {
-            console.log(error)          
-        }
-
-        if (cluster) {
-          result.push(cluster)       
-        } else {
-          const tempCluster = {} as Cluster
-          tempCluster.name = name
-          tempCluster.pipelineRuns = [] 
-          result.push(tempCluster)
-        }
-        
+          if (error instanceof Error) {
+              errStr = error.message
+              tempCluster.name = name
+              tempCluster.pipelineRuns = []
+              tempCluster.error = errStr
+              console.log(errStr)                
+              console.log(tempCluster.error)
+              result.push(tempCluster)
+          } 
+        }        
       }
       response.send(result)
     })

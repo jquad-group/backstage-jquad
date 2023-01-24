@@ -14,6 +14,7 @@ export interface PipelineRunsByEntityResponse {
 export interface Cluster {
   name: string;
   pipelineRuns: PipelineRun[];
+  error: string;
 }
 
 export interface PipelineRun {
