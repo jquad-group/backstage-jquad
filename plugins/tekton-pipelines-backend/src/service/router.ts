@@ -6,7 +6,7 @@ import { Config } from '@backstage/config'
 import { getMicroservicePipelineRuns, getLogs } from './pipelinerun';
 /* ignore lint error for internal dependencies */
 /* eslint-disable */
-import { Cluster, PipelineRun } from '@jquad-group/plugin-tekton-pipelines-common';
+import { Cluster } from '@jquad-group/plugin-tekton-pipelines-common';
 /* eslint-enable */
 export interface RouterOptions {
   logger: Logger;
@@ -67,26 +67,33 @@ export async function createRouter(
     })
 
     router.get('/logs', async (request, response) => {
+      
       const namespace: any = request.query.namespace
       const taskRunPodName: any = request.query.taskRunPodName
       const stepContainer: any = request.query.stepContainer
+      const clusterName: any = request.query.clusterName
 
-      const baseUrl: string = tektonConfig[0].getString('baseUrl')
+      for(const currentConfig of tektonConfig) { 
 
-      let authorizationBearerToken: string = ""
-      if (tektonConfig[0].getOptionalString('authorizationBearerToken') !== undefined) {
-          authorizationBearerToken = tektonConfig[0].getString('authorizationBearerToken')
-      }
+        if (currentConfig.getString('name') === clusterName) {
+          const baseUrl: string = currentConfig.getString('baseUrl')
 
-      const logs = await getLogs(
-        baseUrl,
-        authorizationBearerToken,
-        namespace,
-        taskRunPodName,
-        stepContainer,
-      )
+          let authorizationBearerToken: string = ""
+          if (currentConfig.getOptionalString('authorizationBearerToken') !== undefined) {
+              authorizationBearerToken = currentConfig.getString('authorizationBearerToken')
+          }
 
-      response.send(logs)
+          const logs = await getLogs(
+            baseUrl,
+            authorizationBearerToken,
+            namespace,
+            taskRunPodName,
+            stepContainer,
+          )
+
+          response.send(logs)
+        } 
+      }      
     })    
   
   router.get('/health', (_, response) => {
