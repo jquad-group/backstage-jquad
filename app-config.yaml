@@ -103,7 +103,8 @@ catalog:
         - allow: [User, Group]
 
 tekton:
-  - baseUrl: https://example1.domain.com
+  - name: cluster1
+    baseUrl: https://example1.domain.com
     authorizationBearerToken: 'xxx'
     dashboardBaseUrl: https://example1.domain.com
 #  multiple kubernetes clusters
