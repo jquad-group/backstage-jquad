@@ -6,7 +6,7 @@ import { Config } from '@backstage/config'
 import { getMicroservicePipelineRuns, getLogs } from './pipelinerun';
 /* ignore lint error for internal dependencies */
 /* eslint-disable */
-import { PipelineRun } from '@jquad-group/plugin-tekton-pipelines-common';
+import { Cluster } from '@jquad-group/plugin-tekton-pipelines-common';
 /* eslint-enable */
 export interface RouterOptions {
   logger: Logger;
@@ -24,55 +24,77 @@ export async function createRouter(
   logger.info('Initializing tekton backend')
   const tektonConfig: Config[] = config.getConfigArray('tekton')
     router.get('/pipelineruns', async (request, response) => {
+      
       const namespace: any = request.query.namespace
       const selector: any = request.query.selector
-      const result: Array<PipelineRun> = []
-      for(const currentConfig of tektonConfig) {
-    
+      const result: Cluster[] = []
+
+      for(const currentConfig of tektonConfig) { 
+               
+        const name: string = currentConfig.getString('name')
         const baseUrl: string = currentConfig.getString('baseUrl')
         let authorizationBearerToken: string = ""
         if (currentConfig.getOptionalString('authorizationBearerToken') !== undefined) {
             authorizationBearerToken = currentConfig.getString('authorizationBearerToken')
         }
         const dashboardBaseUrl: string = currentConfig.getString('dashboardBaseUrl')
-    
-        const pipelineruns = await getMicroservicePipelineRuns(
+        
+        let cluster; 
+        const tempCluster = {} as Cluster
+        let errStr: string;
+        try {
+          cluster = await getMicroservicePipelineRuns(
+          name,
           baseUrl,
           authorizationBearerToken,
           namespace,
           selector,
-          dashboardBaseUrl,
-        )
-        
-        for (const pipelineRun of pipelineruns) {
-          result.push(pipelineRun)
-        }
-               
+          dashboardBaseUrl,          
+        ) 
+        result.push(cluster)  
+        } catch (error) {
+          if (error instanceof Error) {
+              errStr = error.message
+              tempCluster.name = name
+              tempCluster.pipelineRuns = []
+              tempCluster.error = errStr
+              console.log(errStr)                
+              console.log(tempCluster.error)
+              result.push(tempCluster)
+          } 
+        }        
       }
       response.send(result)
     })
 
     router.get('/logs', async (request, response) => {
+      
       const namespace: any = request.query.namespace
       const taskRunPodName: any = request.query.taskRunPodName
       const stepContainer: any = request.query.stepContainer
+      const clusterName: any = request.query.clusterName
 
-      const baseUrl: string = tektonConfig[0].getString('baseUrl')
+      for(const currentConfig of tektonConfig) { 
 
-      let authorizationBearerToken: string = ""
-      if (tektonConfig[0].getOptionalString('authorizationBearerToken') !== undefined) {
-          authorizationBearerToken = tektonConfig[0].getString('authorizationBearerToken')
-      }
+        if (currentConfig.getString('name') === clusterName) {
+          const baseUrl: string = currentConfig.getString('baseUrl')
 
-      const logs = await getLogs(
-        baseUrl,
-        authorizationBearerToken,
-        namespace,
-        taskRunPodName,
-        stepContainer,
-      )
+          let authorizationBearerToken: string = ""
+          if (currentConfig.getOptionalString('authorizationBearerToken') !== undefined) {
+              authorizationBearerToken = currentConfig.getString('authorizationBearerToken')
+          }
 
-      response.send(logs)
+          const logs = await getLogs(
+            baseUrl,
+            authorizationBearerToken,
+            namespace,
+            taskRunPodName,
+            stepContainer,
+          )
+
+          response.send(logs)
+        } 
+      }      
     })    
   
   router.get('/health', (_, response) => {

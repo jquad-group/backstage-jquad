@@ -1,6 +1,7 @@
 /* ignore lint error for internal dependencies */
 /* eslint-disable */
 import {
+  Cluster,
   PipelineRun,
   Step,
   TaskRun,
@@ -31,7 +32,7 @@ const getPipelineRuns = async (
         },
       }).then((res) => {
         if (!res.ok) {    
-          return Promise.reject(500)
+          throw new Error(`Calling ${url} failed with HTTP error status: ${res.statusText} ${res.status}`);
         }
         return res.json();
       }  
@@ -43,7 +44,7 @@ const getPipelineRuns = async (
       },
     }).then((res) => {
       if (!res.ok) {    
-        return Promise.reject(500)
+        throw new Error(`Calling ${url} failed with HTTP error status: ${res.statusText} ${res.status}`);
       }
       return res.json();
     }  
@@ -58,6 +59,7 @@ const getPipelineRuns = async (
       let currCompletionTime: Date; 
       let currDuration: number;
       let currDurationString: string;
+      if (item.status !== undefined) {
       if ((item.status.completionTime !== undefined) && (item.status.startTime !== undefined)){        
           currCompletionTime = new Date(item.status.completionTime);
           currStartTime = new Date(item.status.startTime);
@@ -81,6 +83,7 @@ const getPipelineRuns = async (
         currDuration = 0;
         currDurationString = "";
       }
+    
       const pr: PipelineRun = {
         metadata: {
           name: item.metadata.name,
@@ -97,8 +100,9 @@ const getPipelineRuns = async (
           durationString: currDurationString,
         },
       };
-
+    
       prs.push(pr);
+    }
     });
   }
   return prs;
@@ -140,6 +144,7 @@ const getTaskRunsForMicroservice = async (
       let currDuration: number;
       let currDurationString: string;
       let currStartTime: Date;
+      if (item.status !== undefined) {
       if ((item.status.completionTime !== undefined) && (item.status.startTime !== undefined)) {
         currCompletionTime = new Date(item.status.completionTime);
         currStartTime = new Date(item.status.startTime);
@@ -163,6 +168,8 @@ const getTaskRunsForMicroservice = async (
       currDuration = 0;
       currDurationString = "";
     }
+  
+    if (item.status.steps !== undefined) {
     (item.status.steps as Step[]).forEach(currentStep => {
       if (currentStep.terminated !== undefined) {
         if ((currentStep.terminated.finishedAt !== undefined) && (currentStep.terminated.startedAt !== undefined)) {
@@ -196,7 +203,8 @@ const getTaskRunsForMicroservice = async (
         currentStep.terminated = currTerminated;
       }
     }
-  )
+    )
+  }
    const taskRun: TaskRun = {
         metadata: {
           name: item.metadata.name,
@@ -214,18 +222,20 @@ const getTaskRunsForMicroservice = async (
         },
       };
       taskRuns.push(taskRun);
+    }
     });
   }
   return taskRuns;
 };
 
 export async function getMicroservicePipelineRuns(
+  name: string,
   baseUrl: string,
   authorizationBearerToken: string,
   namespace: string,
   selector: string,
   dashboardBaseUrl: string,
-): Promise<PipelineRun[]> {
+): Promise<Cluster> {
   const [pipelineRuns, taskRuns] = await Promise.all([
     getPipelineRuns(
       baseUrl,
@@ -241,7 +251,7 @@ export async function getMicroservicePipelineRuns(
       selector,
     ),
   ]);
-
+  
   for (const pipelineRun of pipelineRuns) {
     const taskRunsForPipelineRun: Array<TaskRun> = [];
     for (const taskRun of taskRuns) {
@@ -249,14 +259,6 @@ export async function getMicroservicePipelineRuns(
         taskRun.metadata.labels['tekton.dev/pipelineRun'];
       
       if (String(pipelineRunNameLabel) === pipelineRun.metadata.name) {
-        /*
-        await getLogsForTaskRun(
-          baseUrl,
-          authorizationBearerToken,
-          namespace,
-          taskRun,
-        );
-        */
         taskRunsForPipelineRun.push(taskRun);
       }
       
@@ -269,7 +271,10 @@ export async function getMicroservicePipelineRuns(
     pipelineRun.taskRuns = taskRunsSorted;
   }
 
-  return pipelineRuns;
+  const tempCluster = {} as Cluster
+  tempCluster.name = name
+  tempCluster.pipelineRuns = pipelineRuns
+  return tempCluster;
 }
 
 export async function getLogs(
