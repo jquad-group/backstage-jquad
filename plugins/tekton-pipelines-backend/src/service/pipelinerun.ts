@@ -1,6 +1,7 @@
 /* ignore lint error for internal dependencies */
 /* eslint-disable */
 import {
+  Cluster,
   PipelineRun,
   Step,
   TaskRun,
@@ -30,9 +31,9 @@ const getPipelineRuns = async (
           Authorization: `Bearer ${authorizationBearerToken}`,
         },
       }).then((res) => {
-        if (!res.ok) {    
-          return Promise.reject(500)
-        }
+        //if (!res.ok) {    
+        //  return Promise.reject(500)
+        //}
         return res.json();
       }  
       )
@@ -42,9 +43,9 @@ const getPipelineRuns = async (
         'Content-Type': 'application/json',
       },
     }).then((res) => {
-      if (!res.ok) {    
-        return Promise.reject(500)
-      }
+      //if (!res.ok) {    
+      //  return Promise.reject(500)
+      //}
       return res.json();
     }  
     )    
@@ -220,12 +221,13 @@ const getTaskRunsForMicroservice = async (
 };
 
 export async function getMicroservicePipelineRuns(
+  name: string,
   baseUrl: string,
   authorizationBearerToken: string,
   namespace: string,
   selector: string,
   dashboardBaseUrl: string,
-): Promise<PipelineRun[]> {
+): Promise<Cluster> {
   const [pipelineRuns, taskRuns] = await Promise.all([
     getPipelineRuns(
       baseUrl,
@@ -241,7 +243,7 @@ export async function getMicroservicePipelineRuns(
       selector,
     ),
   ]);
-
+  
   for (const pipelineRun of pipelineRuns) {
     const taskRunsForPipelineRun: Array<TaskRun> = [];
     for (const taskRun of taskRuns) {
@@ -249,14 +251,6 @@ export async function getMicroservicePipelineRuns(
         taskRun.metadata.labels['tekton.dev/pipelineRun'];
       
       if (String(pipelineRunNameLabel) === pipelineRun.metadata.name) {
-        /*
-        await getLogsForTaskRun(
-          baseUrl,
-          authorizationBearerToken,
-          namespace,
-          taskRun,
-        );
-        */
         taskRunsForPipelineRun.push(taskRun);
       }
       
@@ -269,7 +263,10 @@ export async function getMicroservicePipelineRuns(
     pipelineRun.taskRuns = taskRunsSorted;
   }
 
-  return pipelineRuns;
+  let tempCluster = {} as Cluster
+  tempCluster.name = name
+  tempCluster.pipelineRuns = pipelineRuns
+  return tempCluster;
 }
 
 export async function getLogs(

@@ -6,7 +6,7 @@ import { Config } from '@backstage/config'
 import { getMicroservicePipelineRuns, getLogs } from './pipelinerun';
 /* ignore lint error for internal dependencies */
 /* eslint-disable */
-import { PipelineRun } from '@jquad-group/plugin-tekton-pipelines-common';
+import { Cluster, PipelineRun } from '@jquad-group/plugin-tekton-pipelines-common';
 /* eslint-enable */
 export interface RouterOptions {
   logger: Logger;
@@ -24,30 +24,44 @@ export async function createRouter(
   logger.info('Initializing tekton backend')
   const tektonConfig: Config[] = config.getConfigArray('tekton')
     router.get('/pipelineruns', async (request, response) => {
+      
       const namespace: any = request.query.namespace
       const selector: any = request.query.selector
-      const result: Array<PipelineRun> = []
-      for(const currentConfig of tektonConfig) {
-    
+      const result: Cluster[] = []
+
+      for(const currentConfig of tektonConfig) { 
+               
+        const name: string = currentConfig.getString('name')
         const baseUrl: string = currentConfig.getString('baseUrl')
         let authorizationBearerToken: string = ""
         if (currentConfig.getOptionalString('authorizationBearerToken') !== undefined) {
             authorizationBearerToken = currentConfig.getString('authorizationBearerToken')
         }
         const dashboardBaseUrl: string = currentConfig.getString('dashboardBaseUrl')
-    
-        const pipelineruns = await getMicroservicePipelineRuns(
+        
+        let cluster; 
+        try {
+          cluster = await getMicroservicePipelineRuns(
+          name,
           baseUrl,
           authorizationBearerToken,
           namespace,
           selector,
-          dashboardBaseUrl,
-        )
-        
-        for (const pipelineRun of pipelineruns) {
-          result.push(pipelineRun)
+          dashboardBaseUrl,          
+        ) 
+        } catch (error) {
+            console.log(error)          
         }
-               
+
+        if (cluster) {
+          result.push(cluster)       
+        } else {
+          const tempCluster = {} as Cluster
+          tempCluster.name = name
+          tempCluster.pipelineRuns = [] 
+          result.push(tempCluster)
+        }
+        
       }
       response.send(result)
     })

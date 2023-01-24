@@ -11,6 +11,11 @@ export interface PipelineRunsByEntityResponse {
   items: PipelineRun[];
 }
 
+export interface Cluster {
+  name: string;
+  pipelineRuns: PipelineRun[];
+}
+
 export interface PipelineRun {
   metadata: {
     name: string;
