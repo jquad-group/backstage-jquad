@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 // eslint-disable-next-line  no-restricted-imports
 import { Box, SwipeableDrawer, Typography} from '@material-ui/core';
+import TextareaAutosize from '@material-ui/core/TextareaAutosize';
+
 
 
 function NewlineText(props: { text: string; }): JSX.Element {
@@ -23,9 +25,12 @@ export function StepLog(props: { opened: boolean, log: string }) {
         onClose={() => setOpen(false)}
         onOpen={() => {}}
       >
-        <Typography style={{ wordWrap: "break-word", width: "auto", margin: 10 }}>
-           <NewlineText text={log} />
-        </Typography>
+        
+           <TextareaAutosize
+            maxRows={50}
+            defaultValue={log}
+          />           
+        
       </SwipeableDrawer>
     </div>
   );
