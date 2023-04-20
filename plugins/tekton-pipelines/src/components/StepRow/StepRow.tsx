@@ -73,7 +73,7 @@ export function StepRow(props: { clusterName: string, namespace: string, podName
               )}
                 
                {!isLoading && data.data !== "" && (     
-                <StepLog opened={true} log={data.data} />
+                <StepLog opened={true} text={data.data} />
               )} 
             </TableCell>          
           </TableRow>
