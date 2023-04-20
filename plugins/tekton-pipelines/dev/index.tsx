@@ -9,6 +9,8 @@ import { TestApiProvider } from '@backstage/test-utils';
 import { Cluster, Label, PipelineRun, PipelineRunsByEntityRequest, TaskRun } from '@jquad-group/plugin-tekton-pipelines-common';
 /* eslint-enable */
 import { TektonApi, tektonApiRef } from '../src/api/types';
+import * as logFileMock from './__fixtures__/log.json';
+
 
 const mockEntity: Entity = {
   apiVersion: 'backstage.io/v1alpha1',
@@ -30,8 +32,8 @@ const mockEntity: Entity = {
 
 class MockTektonClient implements TektonApi {
   getLogs(baseUrl: string, authorizationBearerToken: string, namespace: string, taskRunPodName: string, stepContainer: string): Promise<string> {
-    const logMock = Promise.resolve('this is example log');
-    return logMock;
+    const logMock = logFileMock
+    return Promise.resolve(logMock.log);
   }
 
   async getHealth(): Promise<{ status: string; }> {
