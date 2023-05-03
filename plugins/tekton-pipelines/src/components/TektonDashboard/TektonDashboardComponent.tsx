@@ -2,11 +2,8 @@ import { Entity } from '@backstage/catalog-model';
 import {
   Content,
   ContentHeader,
-  Header,
-  HeaderLabel,
   Page,
   Progress,
-  SupportButton,
 } from '@backstage/core-components';
 
 /* ignore lint error for internal dependencies */
@@ -95,14 +92,7 @@ export function TektonDashboardComponent(props: TektonContentProps) {
 
   return (
     <Page themeId="tool">
-      <Header title="Tekton Pipelines" subtitle="CI/CD">
-        <HeaderLabel label="Owner" value="Team Y" />
-        <HeaderLabel label="Lifecycle" value="Alpha" />
-      </Header>
       <Content>
-        <ContentHeader title="PipelineRuns">
-          <SupportButton>PipelineRuns</SupportButton>
-        </ContentHeader>
         {clusters !== undefined && clusters?.length > 0 && (
           clusters.map((cluster) => 
             <Grid container spacing={3} direction="column">

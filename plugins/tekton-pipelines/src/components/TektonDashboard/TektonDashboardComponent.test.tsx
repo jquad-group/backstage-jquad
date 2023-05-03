@@ -44,7 +44,6 @@ describe('TektonDashboardComponent', () => {
 
     await waitFor(() => {
       debug();
-      expect(queryByText('PipelineRuns')).not.toBeInTheDocument();
     });
 
     act(() => {
@@ -54,7 +53,6 @@ describe('TektonDashboardComponent', () => {
     await waitFor(() => {
       debug();
       expect(queryByRole('progress')).not.toBeInTheDocument();
-      expect(queryByText('PipelineRuns')).toBeInTheDocument();
     });
   });
 
@@ -90,7 +88,6 @@ describe('TektonDashboardComponent', () => {
 
     await waitFor(() => {
       debug();
-      expect(queryByText('PipelineRuns')).not.toBeInTheDocument();
     });
 
     act(() => {
@@ -100,7 +97,6 @@ describe('TektonDashboardComponent', () => {
     await waitFor(() => {
       debug();
       expect(queryByRole('progress')).not.toBeInTheDocument();
-      expect(queryByText('PipelineRuns')).toBeInTheDocument();
     });
   });
   it('renders the progress bar and then error', async () => {
@@ -133,7 +129,6 @@ describe('TektonDashboardComponent', () => {
 
     await waitFor(() => {
       debug();
-      expect(queryByText('PipelineRuns')).not.toBeInTheDocument();
       expect(queryByText('Error: error404')).not.toBeInTheDocument();
     });
 
@@ -144,7 +139,6 @@ describe('TektonDashboardComponent', () => {
     await waitFor(() => {
       debug();
       expect(queryByRole('progress')).not.toBeInTheDocument();
-      expect(queryByText('PipelineRuns')).not.toBeInTheDocument();
       expect(queryByText('Error: error404')).toBeInTheDocument();
     });
   });
