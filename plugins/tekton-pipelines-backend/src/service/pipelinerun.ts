@@ -305,3 +305,32 @@ export async function getLogs(
     return decoded;
  
 };
+
+export async function getExternalLogs(
+  externalLogsUrl: string,
+  authorizationBearerToken: string,
+  namespace: string,
+  taskRunPodName: string,
+  stepContainer: string,
+): Promise<string> {
+ 
+    const url = `${externalLogsUrl}/${namespace}/${taskRunPodName}/${stepContainer}`;
+    let response: any
+    if (authorizationBearerToken !== "") {
+      response = await fetch(url, {
+        headers: {
+          'Content-Type': 'plain/text',
+          Authorization: `Bearer ${authorizationBearerToken}`,
+        },
+      });
+    } else {
+      response = await fetch(url, {
+        headers: {
+          'Content-Type': 'plain/text',
+        },
+      });
+    }
+    const decoded = await response.text();
+    return decoded;
+ 
+};

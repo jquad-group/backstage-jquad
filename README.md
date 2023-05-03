@@ -16,6 +16,7 @@ tekton:
     baseUrl: https://kubernetes-api-server:6443
     authorizationBearerToken: TOKEN (remove this line, if you dont have auth enabled)
     dashboardBaseUrl: https://tekton-dashboard.myserver.com/
+    # externalLogsUrl: https://s3-bucket/ # (optional) use this url to fetch the logs instead of the k8s api server
 ```
 
 # Add the plugin to your custom backstage app

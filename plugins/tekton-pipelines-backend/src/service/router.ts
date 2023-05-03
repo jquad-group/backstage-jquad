@@ -3,7 +3,7 @@ import express from 'express';
 import Router from 'express-promise-router';
 import { Logger } from 'winston';
 import { Config } from '@backstage/config'
-import { getMicroservicePipelineRuns, getLogs } from './pipelinerun';
+import { getMicroservicePipelineRuns, getLogs, getExternalLogs } from './pipelinerun';
 /* ignore lint error for internal dependencies */
 /* eslint-disable */
 import { Cluster } from '@jquad-group/plugin-tekton-pipelines-common';
@@ -78,22 +78,35 @@ export async function createRouter(
 
         if (currentConfig.getString('name') === clusterName) {
           const baseUrl: string = currentConfig.getString('baseUrl')
-
+          
           let authorizationBearerToken: string = ""
           if (currentConfig.getOptionalString('authorizationBearerToken') !== undefined) {
               authorizationBearerToken = currentConfig.getString('authorizationBearerToken')
           }
+                  
+          if (currentConfig.getOptionalString('externalLogsUrl') !== undefined) {
+            let externalLogsUrl: string = currentConfig.getString('externalLogsUrl')
+            const logs = await getExternalLogs(
+              externalLogsUrl,
+              authorizationBearerToken,
+              namespace,
+              taskRunPodName,
+              stepContainer,
+            )
+            response.send(logs)
+          } else {
+            const logs = await getLogs(
+              baseUrl,
+              authorizationBearerToken,
+              namespace,
+              taskRunPodName,
+              stepContainer,
+            )
+            response.send(logs)
+          }
 
-          const logs = await getLogs(
-            baseUrl,
-            authorizationBearerToken,
-            namespace,
-            taskRunPodName,
-            stepContainer,
-          )
+        }
 
-          response.send(logs)
-        } 
       }      
     })    
   
