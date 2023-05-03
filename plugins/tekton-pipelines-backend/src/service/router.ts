@@ -84,11 +84,17 @@ export async function createRouter(
               authorizationBearerToken = currentConfig.getString('authorizationBearerToken')
           }
                   
-          if (currentConfig.getOptionalString('externalLogsUrl') !== undefined) {
-            let externalLogsUrl: string = currentConfig.getString('externalLogsUrl')
+          if (currentConfig.getOptionalString('externalLogsUrlTemplate') !== undefined) {            
+            let externalLogsUrlTemplate: string = currentConfig.getString('externalLogsUrlTemplate')
+
+            let externalLogsUrlAuthorizationBearerToken: string = ""
+            if (currentConfig.getOptionalString('externalLogsUrlAuthorizationBearerToken') !== undefined) {
+              externalLogsUrlAuthorizationBearerToken = currentConfig.getString('externalLogsUrlAuthorizationBearerToken')
+            }
+            
             const logs = await getExternalLogs(
-              externalLogsUrl,
-              authorizationBearerToken,
+              externalLogsUrlTemplate,
+              externalLogsUrlAuthorizationBearerToken,
               namespace,
               taskRunPodName,
               stepContainer,

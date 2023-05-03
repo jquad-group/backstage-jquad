@@ -14,10 +14,16 @@ In the `app-config.yaml` the following properties must be set:
 tekton:
   - name: cluster1 # unique identifier, cannot contain spaces  
     baseUrl: https://kubernetes-api-server:6443
-    authorizationBearerToken: TOKEN (remove this line, if you dont have auth enabled)
+    authorizationBearerToken: TOKEN # (remove this line, if you dont have auth enabled)
     dashboardBaseUrl: https://tekton-dashboard.myserver.com/
-    # externalLogsUrl: https://s3-bucket/ # (optional) use this url to fetch the logs instead of the k8s api server
+    # externalLogsUrlTemplate: https://external-base-url/$namespace/$taskRunPodName/$stepContainer # use this url to fetch the logs instead of the k8s api server
+    # externalLogsUrlAuthorizationBearerToken: TOKEN # (remove this line, if you dont have auth enabled)
 ```
+
+The `externalLogsUrlTemplate` can contain the following variables, which are interpolated on runtime:
+- `$namespace`: the namespace of the `PipelineRun` resource, e.g. `build-namespace`
+- `$taskRunPodName`: the name of the `TaskRun` pod, e.g. `main-2wctk-clone-pod` 
+- `$stepContainer`: the name of the `Step` container inside the `TaskRun` pod, e.g. `step-clone`  
 
 # Add the plugin to your custom backstage app
 

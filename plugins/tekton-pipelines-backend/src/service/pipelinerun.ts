@@ -307,20 +307,23 @@ export async function getLogs(
 };
 
 export async function getExternalLogs(
-  externalLogsUrl: string,
-  authorizationBearerToken: string,
+  externalLogsUrlTemplate: string,
+  externalLogsUrlAuthorizationBearerToken: string,
   namespace: string,
   taskRunPodName: string,
   stepContainer: string,
 ): Promise<string> {
- 
-    const url = `${externalLogsUrl}/${namespace}/${taskRunPodName}/${stepContainer}`;
+     
+   const url = externalLogsUrlTemplate.replace(/\$namespace/g, namespace)
+    .replace(/\$taskRunPodName/g, taskRunPodName)
+    .replace(/\$stepContainer/g, stepContainer);
+
     let response: any
-    if (authorizationBearerToken !== "") {
+    if (externalLogsUrlAuthorizationBearerToken !== "") {
       response = await fetch(url, {
         headers: {
           'Content-Type': 'plain/text',
-          Authorization: `Bearer ${authorizationBearerToken}`,
+          Authorization: `Bearer ${externalLogsUrlAuthorizationBearerToken}`,
         },
       });
     } else {
