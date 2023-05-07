@@ -107,7 +107,17 @@ tekton:
     baseUrl: https://example1.domain.com
     authorizationBearerToken: 'xxx'
     dashboardBaseUrl: https://example1.domain.com
+    externalLogs:
+    - enabled: true
+      urlTemplate: https://externalBaseUrl/$namespace/$taskRunPodName/$stepContainer.txt    
+      headers: [
+        "Content-Type",
+        "plain/text",
+        "Authorization",
+        "AWS AKIAIOSFODNN7EXAMPLE:qgk2+6Sv9/oM7G3qLEjTH1a1l1g="
+      ]    
 #  multiple kubernetes clusters
-#  - baseUrl: https://example2.domain.com
+#  - name: cluster2
+#    baseUrl: https://example2.domain.com
 #    authorizationBearerToken: 'yyy'
 #    dashboardBaseUrl: https://example2.domain.com

@@ -14,9 +14,24 @@ In the `app-config.yaml` the following properties must be set:
 tekton:
   - name: cluster1 # unique identifier, cannot contain spaces  
     baseUrl: https://kubernetes-api-server:6443
-    authorizationBearerToken: TOKEN (remove this line, if you dont have auth enabled)
+    authorizationBearerToken: TOKEN # (remove this line, if you dont have auth enabled)
     dashboardBaseUrl: https://tekton-dashboard.myserver.com/
+    # add the following configuration, if the tekton pod logs should be fetched from an external server  
+    externalLogs:
+    - enabled: true
+      urlTemplate: https://externalBaseUrl/$namespace/$taskRunPodName/$stepContainer.txt    
+      headers: [
+        "Content-Type",
+        "plain/text",
+        "Authorization",
+        "Bearer AKIAIOSFODNN7EXAMPLE:qgk2+6Sv9/oM7G3qLEjTH1a1l1g="
+      ]        
 ```
+
+The `urlTemplate` can contain the following variables, which are interpolated on runtime:
+- `$namespace`: the namespace of the `PipelineRun` resource, e.g. `build-namespace`
+- `$taskRunPodName`: the name of the `TaskRun` pod, e.g. `main-2wctk-clone-pod` 
+- `$stepContainer`: the name of the `Step` container inside the `TaskRun` pod, e.g. `step-clone`  
 
 # Add the plugin to your custom backstage app
 
@@ -26,15 +41,15 @@ In order to add the tekton plugin in your backstage app, you need to:
 
 - add the frontend plugin from the `packages/app` directory using:
 
-`yarn add @jquad-group/plugin-tekton-pipelines@0.3.2`
+`yarn add @jquad-group/plugin-tekton-pipelines@0.3.3`
 
-`yarn add @jquad-group/plugin-tekton-pipelines-common@0.3.2`
+`yarn add @jquad-group/plugin-tekton-pipelines-common@0.3.3`
 
 - add the backend plugin from the `packages/backend` directory using:
 
-`yarn add @jquad-group/plugin-tekton-pipelines-backend@0.3.2`
+`yarn add @jquad-group/plugin-tekton-pipelines-backend@0.3.3`
 
-`yarn add @jquad-group/plugin-tekton-pipelines-common@0.3.2`
+`yarn add @jquad-group/plugin-tekton-pipelines-common@0.3.3`
 
 In your backstage app in `.\packages\app\src\components\catalog\EntityPage.tsx` add the following:
  
