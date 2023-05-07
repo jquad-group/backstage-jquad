@@ -49,7 +49,7 @@ In order to add the tekton plugin in your backstage app, you need to:
 
 `yarn add @jquad-group/plugin-tekton-pipelines-backend@0.3.3`
 
-`yarn add @jquad-group/plugin-tekton-pipelines-common@0.3.2`
+`yarn add @jquad-group/plugin-tekton-pipelines-common@0.3.3`
 
 In your backstage app in `.\packages\app\src\components\catalog\EntityPage.tsx` add the following:
  
