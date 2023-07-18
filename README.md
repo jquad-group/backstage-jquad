@@ -1,59 +1,44 @@
 # Tekton Pipelines Plugin
 
 - The frontend plugin is located under `plugins\tekton-pipelines`.
-- The backend plugin is located under `plugins\tekton-pipelines-backend`. 
 
 ![Dashboard](https://github.com/jquad-group/backstage-jquad/blob/main/img/tekton.png)
 
 
-# Configuration
+# Pre-requirements 
 
-In the `app-config.yaml` the following properties must be set:
+This plugin uses the Backstage backend kubernetes plugin. Therefore the backstage kubernetes plugin needs to be installed and configured on your backstage instance first.
+
+Installation can be found here: https://backstage.io/docs/features/kubernetes/installation.
+
+Configuration of the plugin: https://backstage.io/docs/features/kubernetes/configuration
+
+Additionally, the following permissions need to be configured in the `backstage-read-only` Cluster Role:
 
 ```
-tekton:
-  - name: cluster1 # unique identifier, cannot contain spaces  
-    baseUrl: https://kubernetes-api-server:6443
-    authorizationBearerToken: TOKEN # (remove this line, if you dont have auth enabled)
-    dashboardBaseUrl: https://tekton-dashboard.myserver.com/
-    # add the following configuration, if the tekton pod logs should be fetched from an external server  
-    externalLogs:
-    - enabled: true
-      urlTemplate: https://externalBaseUrl/$namespace/$taskRunPodName/$stepContainer.txt    
-      headers: [
-        "Content-Type",
-        "plain/text",
-        "Authorization",
-        "Bearer AKIAIOSFODNN7EXAMPLE:qgk2+6Sv9/oM7G3qLEjTH1a1l1g="
-      ]        
+  - apiGroups:
+      - tekton.dev
+    resources:
+      - pipelineruns
+      - taskruns
+    verbs:
+      - get
+      - list      
+      - watch
+  ...
+  - apiGroups:
+      - '*'
+    resources:
+      - pods/log  # can download pod logs
 ```
 
-The `urlTemplate` can contain the following variables, which are interpolated on runtime:
-- `$namespace`: the namespace of the `PipelineRun` resource, e.g. `build-namespace`
-- `$taskRunPodName`: the name of the `TaskRun` pod, e.g. `main-2wctk-clone-pod` 
-- `$stepContainer`: the name of the `Step` container inside the `TaskRun` pod, e.g. `step-clone`  
+# Add the tekton frontend plugin to your custom backstage app
 
-# Add the plugin to your custom backstage app
-
-(Optional) If you have a newly cloned backstage application run `yarn install` from the root of the application.
-
-In order to add the tekton plugin in your backstage app, you need to:
-
-- add the frontend plugin from the `packages/app` directory using:
-
-`yarn add @jquad-group/plugin-tekton-pipelines@0.3.3`
-
-`yarn add @jquad-group/plugin-tekton-pipelines-common@0.3.3`
-
-- add the backend plugin from the `packages/backend` directory using:
-
-`yarn add @jquad-group/plugin-tekton-pipelines-backend@0.3.3`
-
-`yarn add @jquad-group/plugin-tekton-pipelines-common@0.3.3`
+Add the frontend plugin from the `packages/app` directory using:
+`yarn add @jquad-group/plugin-tekton-pipelines@0.5.0`
 
 In your backstage app in `.\packages\app\src\components\catalog\EntityPage.tsx` add the following:
  
-
 ```
 import { EntityTektonPipelinesContent, isTektonCiAvailable } from '@jquad-group/plugin-tekton-pipelines';
 ...

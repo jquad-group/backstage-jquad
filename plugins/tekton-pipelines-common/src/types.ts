@@ -26,12 +26,20 @@ export interface PipelineRun {
   pipelineRunDashboardUrl: string;
   taskRuns: Array<TaskRun>;
   status: {
+    childReferences: Array<ChildReferences>
     conditions: [Condition];
     startTime: Date;
     completionTime: Date;
     duration: number;
     durationString: string;
   };
+}
+
+export interface ChildReferences {
+  apiVersion: string;
+  kind: string;
+  name: string;
+  pipelineTaskName: string;
 }
 
 export interface TaskRun {
