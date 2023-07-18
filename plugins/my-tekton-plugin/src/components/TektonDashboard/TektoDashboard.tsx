@@ -16,7 +16,6 @@ import { useKubernetesObjects} from '@backstage/plugin-kubernetes';
 import { PipelineRun, Cluster, TaskRun } from '../../types';
 import { CollapsibleTable } from '../CollapsibleTable';
 import React from 'react';
-import { Label } from '@jquad-group/plugin-tekton-pipelines-common';
 
 type KubernetesContentProps = {
     entity: Entity;
@@ -32,7 +31,6 @@ export const TektonDashboard = ({
     entity,
     refreshIntervalMs,
   );
-
   
   const clustersWithErrors =
     kubernetesObjects?.items.filter(r => r.errors.length > 0) ?? [];
@@ -59,13 +57,8 @@ export const TektonDashboard = ({
               tR = kubernetesObjects.items[i].resources[q].resources[crCnt]                
               taskRuns.push(tR)
             }
-            //logger.info("CHECKING IS PIPELINERUN: " + isPipelinePartOfMicroservice(entity, kubernetesObjects.items[i].resources[q].resources[crCnt]));
             // get all pipelineruns
-            logger.info("CHECKING PIPELINERUN: " + kubernetesObjects.items[i].resources[q].resources[crCnt]);
-            logger.info("THE LABELS:" + kubernetesObjects.items[i].resources[q].resources[crCnt].metadata.labels);
-            logger.info("IS TRUE: " + String(isPipelinePartOfMicroservice(entity, kubernetesObjects.items[i].resources[q].resources[crCnt])));
             if ((kubernetesObjects.items[i].resources[q].resources[crCnt].kind === 'PipelineRun') && isPipelinePartOfMicroservice(entity, kubernetesObjects.items[i].resources[q].resources[crCnt])) {
-              logger.info("FOUND PIPELINE: " + kubernetesObjects.items[i].resources[q].resources[crCnt].metadata.name);
               let pR: PipelineRun;
               pR = kubernetesObjects.items[i].resources[q].resources[crCnt]
               pR.taskRuns = new Array<TaskRun>
@@ -133,8 +126,9 @@ function isPipelinePartOfMicroservice(entity: Entity, cr: TaskRun | PipelineRun)
     if (entity.metadata.annotations["tektonci/pipeline-label-selector"] !== undefined) {      
       if (isRecordContained(entity.metadata.annotations, cr.metadata.labels)) {
         result = true;
+      } else {
+       result = false;
       }
-      result = false;
     }
     return result;
   }
