@@ -1,12 +1,12 @@
 import React from 'react';
 import { createDevApp } from '@backstage/dev-utils';
-import { tektonPipelinesPluginPlugin } from '../src/plugin';
+import { EntityTektonPipelinesContent, tektonPipelinesPluginPlugin } from '../src/plugin';
 
 createDevApp()
   .registerPlugin(tektonPipelinesPluginPlugin)
   .addPage({
-    element: <TektonPipelinesPluginPage />,
+    element: <EntityTektonPipelinesContent />,
     title: 'Root Page',
-    path: '/my-tekton-plugin'
+    path: '/tekton-pipelines'
   })
   .render();
