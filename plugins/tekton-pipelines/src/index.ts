@@ -1,1 +1,2 @@
-export { tektonPipelinesPluginPlugin } from './plugin';
+export { tektonPipelinesPluginPlugin, EntityTektonPipelinesContent } from './plugin';
+export { isTektonCiAvailable } from './Router';

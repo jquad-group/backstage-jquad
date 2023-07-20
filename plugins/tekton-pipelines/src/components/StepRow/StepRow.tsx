@@ -4,7 +4,6 @@ import { StatusError, StatusOK, StatusPending, StatusRunning, StatusWarning } fr
 import { TableRow, TableCell, Button, CircularProgress } from '@material-ui/core';
 import { useApi } from '@backstage/core-plugin-api';
 import { kubernetesApiRef } from '@backstage/plugin-kubernetes';
-//import logger from '../../logging/logger';
 
 /* ignore lint error for internal dependencies */
 /* eslint-disable */

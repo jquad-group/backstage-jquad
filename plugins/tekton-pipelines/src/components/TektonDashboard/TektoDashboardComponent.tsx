@@ -10,7 +10,6 @@ import {
 /* ignore lint error for internal dependencies */
 /* eslint-disable */
 import { Box, Grid } from '@material-ui/core';
-//import logger from '../../logging/logger';
 import { useKubernetesObjects} from '@backstage/plugin-kubernetes';
 import { FetchResponse } from '@backstage/plugin-kubernetes-common';
 import { PipelineRun, Cluster, TaskRun } from '../../types';
