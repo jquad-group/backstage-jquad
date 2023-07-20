@@ -8,7 +8,7 @@ import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { TektonDashboardComponent } from './components/TektonDashboard';
 
-export const TEKTON_PIPELINES_ANNOTATION = 'tektonci';
+export const TEKTON_PIPELINES_ANNOTATION = 'tektonci/enabled';
 
 export const isTektonCiAvailable = (entity: Entity) =>
   Boolean(entity?.metadata.annotations?.[TEKTON_PIPELINES_ANNOTATION]);

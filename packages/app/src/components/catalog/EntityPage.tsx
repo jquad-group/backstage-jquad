@@ -200,7 +200,7 @@ const serviceEntityPage = (
           <EmptyState
             title="No Tekton Dashboard available for this entity"
             missing="info"
-            description="You need to add the annotation 'tektonci: true' to your entity component if you want to enable the Tekton Pipelines for it."
+            description="You need to add the annotation 'tektonci/enabled: true' to your entity component if you want to enable the Tekton Pipelines for it."
           />
         </EntitySwitch.Case>
       </EntitySwitch>

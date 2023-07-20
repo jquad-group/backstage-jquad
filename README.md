@@ -89,7 +89,7 @@ const serviceEntityPage = (
           <EmptyState
             title="No Tekton Dashboard available for this entity"
             missing="info"
-            description="You need to add the annotation 'tektonci: true' to your entity component if you want to enable the Tekton Pipelines for it."
+            description="You need to add the annotation 'tektonci/enabled: true' to your entity component if you want to enable the Tekton Pipelines for it."
           />
         </EntitySwitch.Case>
 
@@ -104,7 +104,7 @@ const serviceEntityPage = (
 
 # Using the Plugin
 
-To enable Tekton Pipelines for a Component entity, add the annotation `tektonci: "true"` in addition to the existing `backstage.io/kubernetes-id`, `backstage.io/kubernetes-namespace`, or `backstage.io/kubernetes-label-selector` annotations. For example:
+To enable Tekton Pipelines for a Component entity, add the annotation `tektonci/enabled: "true"` in addition to the existing `backstage.io/kubernetes-id`, `backstage.io/kubernetes-namespace`, or `backstage.io/kubernetes-label-selector` annotations. For example:
 
 ```
 apiVersion: backstage.io/v1alpha1
@@ -113,7 +113,7 @@ metadata:
   namespace: dev
   annotations:
     backstage.io/kubernetes-label-selector: 'app=microservice'
-    tektonci: "true"
+    tektonci/enabled: "true"
   name: microservice
   description: Microservice
 spec:
