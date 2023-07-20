@@ -1,4 +1,14 @@
-# Tekton Pipelines Plugin
+# Tekton Pipelines Plugin Documentation
+
+1. [Overview](#overview)
+2. [Pre-requirements](#pre-requirements)
+3. [Adding Tekton Frontend Plugin to Your Backstage App](#adding-tekton-frontend-plugin-to-your-backstage-app)
+4. [Using the Plugin](#using-the-plugin)
+5. [Developing the Tekton Pipelines Plugin Locally](#developing-the-tekton-pipelines-plugin-locally)
+
+# Overview
+
+The Tekton Pipelines plugin provides integration with Tekton Pipelines in Backstage. It allows users to view Tekton `PipelineRuns` associated with their components.
 
 - The frontend plugin is located under `plugins\tekton-pipelines`.
 
@@ -7,15 +17,17 @@
 
 # Pre-requirements 
 
-This plugin uses the Backstage backend kubernetes plugin. Therefore the backstage kubernetes plugin needs to be installed and configured on your backstage instance first.
+Before using the Tekton Pipelines plugin, make sure you have fulfilled the following pre-requisites:
 
-Installation can be found here: https://backstage.io/docs/features/kubernetes/installation.
+1. Install and configure the Backstage backend Kubernetes plugin on your Backstage instance. Follow the installation guide at: https://backstage.io/docs/features/kubernetes/installation.
 
-Configuration of the plugin: https://backstage.io/docs/features/kubernetes/configuration
+2. Configure the Kubernetes plugin by following the instructions at: https://backstage.io/docs/features/kubernetes/configuration.
 
-Additionally, the following permissions need to be configured in the `backstage-read-only` Cluster Role:
+3. Ensure that the necessary permissions are set in the `backstage-read-only` Cluster Role to access Tekton resources:
 
 ```
+  // ...
+  # Access Tekton Resources
   - apiGroups:
       - tekton.dev
     resources:
@@ -25,110 +37,110 @@ Additionally, the following permissions need to be configured in the `backstage-
       - get
       - list      
       - watch
-  ...
+  // ...
+  # Access Step Logs
   - apiGroups:
       - '*'
     resources:
       - pods/log  # can download pod logs
 ```
 
-Add the Tekton custom resources in your `app-config.yaml` like this:
+4. Add the Tekton custom resources to your `app-config.yaml` as shown below:
+
 ```
 kubernetes:
-  serviceLocatorMethod:
-    type: 'multiTenant'
+  // ...
   clusterLocatorMethods:
     - type: 'config'
       clusters:
-        - url: https://host.docker.internal:21301
-          name: k3d
-          authProvider: 'serviceAccount'
-          skipTLSVerify: true
-          skipMetricsLookup: true
-          serviceAccountToken: eyJhbGciOiJSUzI1NiIsImtpZCI6IlRiYlFqeHZSQy1qSFpoNzRyaGlBYXM5anQwdHZ3alZ3VEVwbHNpeG5wb3MifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJwaXBlbGluZS1kZW1vIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZWNyZXQubmFtZSI6ImJhY2tzdGFnZSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50Lm5hbWUiOiJiYWNrc3RhZ2UiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiIxNzZjZTk3Zi1lMjM5LTQyZWQtYTJiOC00ZTE4ZjZlNGIxOGYiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6cGlwZWxpbmUtZGVtbzpiYWNrc3RhZ2UifQ.uer0wvSPrFyYykUFkMqgqPn7pxnoNChLmJAyE1Mpa82_1WYcqF9Uv7e8I7Vf0fevz_f6Pjbf257XCsXL-q9ZEk2qsFSRpLbkmixpAFeMaJ2R2Iw_6FBDk7WRa58SLDQ91SwJVo5gkVeMsCAejqHAWstj7UgwpZBAKifobNpzgaSWkc0JmwiqpTTRzdxHhKZBClQNXghyrEzhGdI3RxPpnHqtEJk120b41p7oanlfyNY570K1DCyHtjNdQIDfQkPAqaG_HOhQwrVRRG5RRmDykMzRSiHGcW40eR0xBGR3UNvDlTOsPPbIloGfa9seR4pCbaXrz9e_-rV0n00r2nllyw
-          dashboardUrl: http://127.0.0.1:64713 # url copied from running the command: minikube service kubernetes-dashboard -n kubernetes-dashboard
-          dashboardApp: standard
-          #caData: ${K8S_CONFIG_CA_DATA}
-          #caFile: '' # local path to CA file
+        - name: k3d      
+          // ...
           customResources:
-            #- group: 'tekton.dev'
-            #  apiVersion: 'v1beta1'
-            #  plural: 'pipelineruns'
-            #- group: 'tekton.dev'
-            #  apiVersion: 'v1beta1'
-            #  plural: 'taskruns'
             - group: 'tekton.dev'
               apiVersion: 'v1'
               plural: 'pipelineruns'              
             - group: 'tekton.dev'
               apiVersion: 'v1'
               plural: 'taskruns'
-
 ```
 
-# Add the tekton frontend plugin to your custom backstage app
+# Adding Tekton Frontend Plugin to Your Backstage App
 
-Add the frontend plugin from the `packages/app` directory using:
-`yarn add @jquad-group/plugin-tekton-pipelines@0.5.0`
+To incorporate the Tekton Pipelines plugin into your custom Backstage app, follow these steps:
 
-In your backstage app in `.\packages\app\src\components\catalog\EntityPage.tsx` add the following:
- 
+1. Navigate to `./packages/app`, and install the frontend plugin using yarn:
+`yarn add @jquad-group/plugin-tekton-pipelines@1.0.0`
+
+2. In your Backstage app, navigate to the file `./packages/app/src/components/catalog/EntityPage.tsx` and add the following code:
+
 ```
 import { EntityTektonPipelinesContent, isTektonCiAvailable } from '@jquad-group/plugin-tekton-pipelines';
-...
+// ...
 const serviceEntityPage = (
-    ...
-    <EntityLayout.Route path="/tekton-pipelines-plugin" title="Tekton Pipelines">
-   
+    // ...
+    <EntityLayout.Route path="/tekton-pipelines" title="Tekton Pipelines">
       <EntitySwitch>
 
         <EntitySwitch.Case if={e => Boolean(isTektonCiAvailable(e))}>
-          <EntityTektonPipelinesContent />
+          <EntityTektonPipelinesContent refreshIntervalMs={5000}/>
         </EntitySwitch.Case>
 
         <EntitySwitch.Case>
           <EmptyState
-            title="No Tekton Pipelines available for this entity"
+            title="No Tekton Dashboard available for this entity"
             missing="info"
-            description="You need to add the annotation 'tektonci/build-namespace' to your component if you want to enable the Tekton Pipelines for it."
+            description="You need to add the annotation 'tektonci: true' to your entity component if you want to enable the Tekton Pipelines for it."
           />
         </EntitySwitch.Case>
 
       </EntitySwitch>
 
     </EntityLayout.Route>
-    ...
+
+    // ...
 );
     
 ```
 
-# Use the plugin
+# Using the Plugin
 
-In a `Component` entity, besides the annotation `backstage.io/kubernetes-id` or `backstage.io/kubernetes-namespace`, add the annotation `tektonci: "true"`.
+To enable Tekton Pipelines for a Component entity, add the annotation `tektonci: "true"` in addition to the existing `backstage.io/kubernetes-id`, `backstage.io/kubernetes-namespace`, or `backstage.io/kubernetes-label-selector` annotations. For example:
 
 ```
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  namespace: default
+  namespace: dev
   annotations:
-    backstage.io/kubernetes-id: microservice
+    backstage.io/kubernetes-label-selector: 'app=microservice'
     tektonci: "true"
-  name: jquad-microservice
-  description: JQuad Microservice
+  name: microservice
+  description: Microservice
 spec:
   type: service
   lifecycle: production
   owner: user:guest
 ```
 
-# Develop the tekton pipelines plugin locally 
+This will list all the `PipelineRuns` having the label `app: microservice`, e.g.
 
-From the main directory: 
+```
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  generateName: microservice-pipeline-
+  namespace: dev
+  labels:     
+    app: microservice
+```
 
- `yarn dev`
+# Developing the Tekton Pipelines Plugin Locally
 
-Navigate to `http://localhost:3000/` 
+To work on the Tekton Pipelines plugin locally, follow these steps:
+1. Navigate to the main directory of the Backstage app
+2. Start the development server: `yarn dev`
+3. Access the local development environment by opening your web browser and visiting: `http://localhost:3000/`.  
+
 
 
 

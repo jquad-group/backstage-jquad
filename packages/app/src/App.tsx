@@ -33,7 +33,7 @@ import { FlatRoutes } from '@backstage/core-app-api';
 import { CatalogGraphPage } from '@backstage/plugin-catalog-graph';
 import { PermissionedRoute } from '@backstage/plugin-permission-react';
 import { catalogEntityCreatePermission } from '@backstage/plugin-catalog-common/alpha';
-import { EntityTektonPipelinesContent } from '../../../plugins/tekton-pipelines/src/plugin';
+import { EntityTektonPipelinesContent } from 'backstage-plugin-tekton-pipelines-plugin/src/plugin';
 
 
 const app = createApp({

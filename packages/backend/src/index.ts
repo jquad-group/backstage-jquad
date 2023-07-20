@@ -28,7 +28,6 @@ import scaffolder from './plugins/scaffolder';
 import proxy from './plugins/proxy';
 import techdocs from './plugins/techdocs';
 import search from './plugins/search';
-import tekton from './plugins/tekton-pipelines';
 import { PluginEnvironment } from './types';
 import { ServerPermissionClient } from '@backstage/plugin-permission-node';
 import kubernetes from './plugins/kubernetes';
@@ -81,7 +80,6 @@ async function main() {
   const techdocsEnv = useHotMemoize(module, () => createEnv('techdocs'));
   const searchEnv = useHotMemoize(module, () => createEnv('search'));
   const appEnv = useHotMemoize(module, () => createEnv('app'));
-  const tektonEnv = useHotMemoize(module, () => createEnv('tekton'));
   const kubernetesEnv = useHotMemoize(module, () => createEnv('kubernetes'));
 
   const apiRouter = Router();
@@ -91,7 +89,6 @@ async function main() {
   apiRouter.use('/techdocs', await techdocs(techdocsEnv));
   apiRouter.use('/proxy', await proxy(proxyEnv));
   apiRouter.use('/search', await search(searchEnv));
-  apiRouter.use('/tekton-pipelines', await tekton(tektonEnv));
   apiRouter.use('/kubernetes', await kubernetes(kubernetesEnv));
 
   // Add backends ABOVE this line; this 404 handler is the catch-all fallback

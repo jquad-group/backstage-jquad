@@ -143,7 +143,7 @@ function isCustomResource(n:FetchResponse, i?:number, arr?:FetchResponse[]) {
 }
 
 function isPipelineRun(n:any, i?:number, arr?:any[]): n is PipelineRun {
-  if ((n.kind === 'PipelineRun') && (n.metadata.labels["tektonci"] === 'true')) {
+  if (n.kind === 'PipelineRun') {
     return true;
   } else {
     return false;
@@ -151,7 +151,7 @@ function isPipelineRun(n:any, i?:number, arr?:any[]): n is PipelineRun {
 }
 
 function isTaskRun(n:any, i?:number, arr?:any[]): n is TaskRun {
-  if ((n.kind === 'TaskRun') && (n.metadata.labels["tektonci"] === 'true')) {
+  if (n.kind === 'TaskRun') {
     return true;
   } else {
     return false;

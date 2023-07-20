@@ -73,8 +73,8 @@ import { ReportIssue } from '@backstage/plugin-techdocs-module-addons-contrib';
 /* ignore lint error for internal dependencies */
 /* eslint-enable */
 import { EntityKubernetesContent } from '@backstage/plugin-kubernetes';
-import { EntityTektonPipelinesContent } from '../../../../../plugins/tekton-pipelines/src/plugin';
-import { isTektonCiAvailable } from '../../../../../plugins/tekton-pipelines/src/Router';
+import { EntityTektonPipelinesContent } from 'backstage-plugin-tekton-pipelines-plugin/src/plugin';
+import { isTektonCiAvailable } from 'backstage-plugin-tekton-pipelines-plugin/src/Router';
 
 const techdocsContent = (
   <EntityTechdocsContent>
@@ -200,7 +200,7 @@ const serviceEntityPage = (
           <EmptyState
             title="No Tekton Dashboard available for this entity"
             missing="info"
-            description="You need to add the label 'tektonci: true' to your component if you want to enable the Tekton Pipelines for it."
+            description="You need to add the annotation 'tektonci: true' to your entity component if you want to enable the Tekton Pipelines for it."
           />
         </EntitySwitch.Case>
       </EntitySwitch>
