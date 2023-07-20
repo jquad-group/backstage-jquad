@@ -100,7 +100,7 @@ export function CollapsibleTableRow(props: { clusterName: string, pipelineRun: P
   
   
   if (pipelineRun.status.completionTime === undefined) {
-    pipelineRun.status.completionTime = new Date(0);
+    pipelineRun.status.completionTime = "";
   }
 
   return (
@@ -120,8 +120,8 @@ export function CollapsibleTableRow(props: { clusterName: string, pipelineRun: P
         </TableCell>
         <TableCell align="right">{pipelineRun.metadata.namespace}</TableCell>
         <TableCell align="right"><StatusComponent reason={pipelineRun.status.conditions[0].reason} />{pipelineRun.status.conditions[0].reason}</TableCell>
-        <TableCell align="right">{pipelineRun.status.startTime.toLocaleString()}</TableCell>
-        <TableCell align="right">{pipelineRun.status.completionTime.toLocaleString()}</TableCell>
+        <TableCell align="right">{pipelineRun.status.startTime}</TableCell>
+        <TableCell align="right">{pipelineRun.status.completionTime}</TableCell>
         <TableCell align="right"><a href={pipelineRun.pipelineRunDashboardUrl} target="_blank">Link</a></TableCell>
       </TableRow>
       <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
@@ -135,7 +135,8 @@ export function CollapsibleTableRow(props: { clusterName: string, pipelineRun: P
                 <TableCell>Name</TableCell>
                 <TableCell>Step</TableCell>
                 <TableCell>Status</TableCell>
-                <TableCell>Duration</TableCell>
+                <TableCell>Start Time</TableCell>
+                <TableCell>Completition Time</TableCell>
                 <TableCell>Log</TableCell>
               </TableRow>
             </TableHead>

@@ -17,8 +17,8 @@ export interface Cluster {
     status: {
       childReferences: Array<ChildReferences>
       conditions: [Condition];
-      startTime: Date;
-      completionTime: Date;
+      startTime: string;
+      completionTime: string;
       duration: number;
       durationString: string;
     };
@@ -43,8 +43,8 @@ export interface Cluster {
       conditions: [Condition];
       podName: string;
       steps: Array<Step>;
-      startTime: Date;
-      completionTime: Date;
+      startTime: string;
+      completionTime: string;
       duration: number;
       durationString: string;
     };
@@ -63,8 +63,8 @@ export interface Cluster {
   }
   
   export interface Terminated {
-    startedAt: Date;
-    finishedAt: Date;
+    startedAt: string;
+    finishedAt: string;
     duration: number;
     durationString: string;
     reason: string;

@@ -73,8 +73,10 @@ export function StepRow(props: { clusterName: string, namespace: string, podName
             <><TableCell>
             <StatusComponent reason={step.terminated.reason} />{step.terminated.reason}
           </TableCell><TableCell>
-              {step.terminated.durationString}
+              {step.terminated.startedAt}   
             </TableCell><TableCell>
+              {step.terminated.finishedAt}
+            </TableCell><TableCell>              
               <Button value="logs" onClick={() => handleClick(step)} disabled={isLoading}>Show Log</Button>
               {isLoading && (
                 <CircularProgress size={15} />
