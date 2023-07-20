@@ -1,1 +1,1 @@
-export { TektonDashboardComponent } from './TektonDashboardComponent';
+export { TektonDashboardComponent } from './TektoDashboardComponent';

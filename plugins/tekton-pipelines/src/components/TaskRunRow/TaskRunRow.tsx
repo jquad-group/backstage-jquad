@@ -3,7 +3,7 @@ import React, { Fragment } from 'react';
 import { TableRow, TableCell } from '@material-ui/core';
 /* ignore lint error for internal dependencies */
 /* eslint-disable */
-import { TaskRun } from '@jquad-group/plugin-tekton-pipelines-common';
+import { TaskRun } from '../../types';
 import { StepRow } from '../StepRow';
 
 export function TaskRunRow(props: { clusterName: string, taskRun: TaskRun }) {
@@ -12,9 +12,11 @@ export function TaskRunRow(props: { clusterName: string, taskRun: TaskRun }) {
   return (
     <Fragment>
       <TableRow key={taskRun.metadata.name} style={{border: "1px solid rgb(0, 0, 0)"}}>
+      {taskRun.status.steps !== undefined && (
         <TableCell align="left" rowSpan={taskRun.status.steps.length + 1}>
           {taskRun.metadata.name}
         </TableCell>
+        )}      
       </TableRow>      
       {taskRun.status.steps !== undefined &&
         taskRun.status.steps.map((step) => (

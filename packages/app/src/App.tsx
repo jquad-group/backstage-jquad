@@ -33,9 +33,8 @@ import { FlatRoutes } from '@backstage/core-app-api';
 import { CatalogGraphPage } from '@backstage/plugin-catalog-graph';
 import { PermissionedRoute } from '@backstage/plugin-permission-react';
 import { catalogEntityCreatePermission } from '@backstage/plugin-catalog-common/alpha';
+import { EntityTektonPipelinesContent } from '../../../plugins/tekton-pipelines/src/plugin';
 
-import { MyTektonTestPluginPage } from 'backstage-plugin-my-tekton-test-plugin';
-import { EntityMyTektonPluginContent } from 'backstage-plugin-my-tekton-plugin/src/plugin';
 
 const app = createApp({
   apis,
@@ -94,8 +93,7 @@ const routes = (
     </Route>
     <Route path="/settings" element={<UserSettingsPage />} />
     <Route path="/catalog-graph" element={<CatalogGraphPage />} />
-    <Route path="/my-tekton-plugin" element={<EntityMyTektonPluginContent />} />
-    <Route path="/my-tekton-test-plugin" element={<MyTektonTestPluginPage />} />
+    <Route path="/tekton-pipelines" element={<EntityTektonPipelinesContent />} />
   </FlatRoutes>
 );
 
