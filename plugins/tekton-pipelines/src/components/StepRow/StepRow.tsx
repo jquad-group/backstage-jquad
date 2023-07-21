@@ -2,10 +2,12 @@ import React, { Fragment } from 'react';
 import { StatusError, StatusOK, StatusPending, StatusRunning, StatusWarning } from '@backstage/core-components';
 // eslint-disable-next-line  no-restricted-imports
 import { TableRow, TableCell, Button, CircularProgress } from '@material-ui/core';
-import { getTektonApi } from '../../api/types';
+import { useApi } from '@backstage/core-plugin-api';
+import { kubernetesApiRef } from '@backstage/plugin-kubernetes';
+
 /* ignore lint error for internal dependencies */
 /* eslint-disable */
-import { Step } from '@jquad-group/plugin-tekton-pipelines-common';
+import { Step } from '../../types';
 import { StepLog } from '../StepLog';
 
 
@@ -40,18 +42,24 @@ export function StepRow(props: { clusterName: string, namespace: string, podName
 
   const [data, setData] = React.useState({data: ""});
   const [isLoading, setIsLoading] = React.useState(false);
-  const tektonApi = getTektonApi();
+
+  const k8s = useApi(kubernetesApiRef);
 
   const handleClick = async (step: Step) => {
     setIsLoading(true);
-    
-    const response = tektonApi.getLogs('','', clusterName, namespace, podName, "step-" + step.name);
-    const log = await response;
-    data.data = log;
-    step.log = log;
+    const url = `/api/v1/namespaces/${namespace}/pods/${podName}/log?container=step-${step.name}`;
+
+    k8s.proxy({
+      clusterName: clusterName,
+      path: url,
+    }).then(async (res) => {
+      data.data = await res.text();
+      step.log = data.data;
+    });
     
     setData(data);
     setIsLoading(false);
+    
   };
   
   return (
@@ -60,22 +68,24 @@ export function StepRow(props: { clusterName: string, namespace: string, podName
             <TableCell>
               {step.name}
             </TableCell>
-            <TableCell>
-              <StatusComponent reason={step.terminated.reason} />{step.terminated.reason}
-            </TableCell>
-            <TableCell>
-              {step.terminated.durationString}
-            </TableCell>
-            <TableCell>
+            {step.terminated !== undefined && (
+            <><TableCell>
+            <StatusComponent reason={step.terminated.reason} />{step.terminated.reason}
+          </TableCell><TableCell>
+              {step.terminated.startedAt}   
+            </TableCell><TableCell>
+              {step.terminated.finishedAt}
+            </TableCell><TableCell>              
               <Button value="logs" onClick={() => handleClick(step)} disabled={isLoading}>Show Log</Button>
               {isLoading && (
-                <CircularProgress size={15}/>
+                <CircularProgress size={15} />
               )}
-                
-               {!isLoading && data.data !== "" && (     
+
+              {!isLoading && data.data !== "" && (
                 <StepLog opened={true} text={data.data} />
-              )} 
-            </TableCell>          
+              )}
+            </TableCell></>   
+            )}                   
           </TableRow>
     </Fragment>
   );

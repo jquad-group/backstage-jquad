@@ -72,8 +72,9 @@ import { TechDocsAddons } from '@backstage/plugin-techdocs-react';
 import { ReportIssue } from '@backstage/plugin-techdocs-module-addons-contrib';
 /* ignore lint error for internal dependencies */
 /* eslint-disable */
-import {EntityTektonPipelinesContent,isTektonCiAvailable } from '@jquad-group/plugin-tekton-pipelines';
-/* eslint-enable */
+import { EntityKubernetesContent } from '@backstage/plugin-kubernetes';
+import { EntityTektonPipelinesContent } from 'backstage-plugin-tekton-pipelines-plugin';
+import { isTektonCiAvailable } from 'backstage-plugin-tekton-pipelines-plugin';
 
 const techdocsContent = (
   <EntityTechdocsContent>
@@ -185,6 +186,10 @@ const serviceEntityPage = (
       {techdocsContent}
     </EntityLayout.Route>
 
+    <EntityLayout.Route path="/kubernetes" title="Kubernetes">
+      <EntityKubernetesContent refreshIntervalMs={30000} />
+    </EntityLayout.Route>
+
     <EntityLayout.Route path="/tekton-pipelines" title="Tekton Pipelines">
       <EntitySwitch>
         <EntitySwitch.Case if={e => Boolean(isTektonCiAvailable(e))}>
@@ -193,13 +198,14 @@ const serviceEntityPage = (
 
         <EntitySwitch.Case>
           <EmptyState
-            title="No Tekton Pipelines available for this entity"
+            title="No Tekton Dashboard available for this entity"
             missing="info"
-            description="You need to add the annotation 'tektonci/build-namespace' to your component if you want to enable the Tekton Pipelines for it."
+            description="You need to add the annotation 'tektonci/enabled: true' to your entity component if you want to enable the Tekton Pipelines for it."
           />
         </EntitySwitch.Case>
       </EntitySwitch>
     </EntityLayout.Route>
+
   </EntityLayout>
 );
 

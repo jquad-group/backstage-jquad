@@ -1,42 +1,26 @@
 import { Entity } from '@backstage/catalog-model';
 import {
-  Button,
+  LinkButton,
   MissingAnnotationEmptyState,
 } from '@backstage/core-components';
 import { useEntity } from '@backstage/plugin-catalog-react';
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { TektonDashboardComponent } from './components/TektonDashboard';
-import logger from './logging/logger';
 
-export const TEKTON_PIPELINES_BUILD_NAMESPACE = 'tektonci/build-namespace';
-export const TEKTON_PIPELINES_LABEL_SELECTOR =
-  'tektonci/pipeline-label-selector';
+export const TEKTON_PIPELINES_ANNOTATION = 'tektonci/enabled';
 
 export const isTektonCiAvailable = (entity: Entity) =>
-  Boolean(entity?.metadata.annotations?.[TEKTON_PIPELINES_BUILD_NAMESPACE]);
+  Boolean(entity?.metadata.annotations?.[TEKTON_PIPELINES_ANNOTATION]);
 
 export const Router = (props: { refreshIntervalMs?: number }) => {
   const { entity } = useEntity();
 
-  logger.debug(`Router entity ${JSON.stringify(entity)}`);
-
   const tektonPipelinesAnnotationValue =
-    entity.metadata.annotations?.[TEKTON_PIPELINES_BUILD_NAMESPACE];
-
-  const tektonPipelinesLabelSelectorQueryAnnotationValue =
-    entity.metadata.annotations?.[TEKTON_PIPELINES_LABEL_SELECTOR];
-
-  logger.debug(
-    `Router tektonPipelinesAnnotationValue ${tektonPipelinesAnnotationValue}`,
-  );
-  logger.debug(
-    `Router tektonPipelinesLabelSelectorQueryAnnotationValue ${tektonPipelinesLabelSelectorQueryAnnotationValue}`,
-  );
+    entity.metadata.annotations?.[TEKTON_PIPELINES_ANNOTATION];
 
   if (
-    tektonPipelinesAnnotationValue ||
-    tektonPipelinesLabelSelectorQueryAnnotationValue
+    tektonPipelinesAnnotationValue
   ) {
     return (
    
@@ -58,20 +42,17 @@ export const Router = (props: { refreshIntervalMs?: number }) => {
   return (
     <>
       <MissingAnnotationEmptyState
-        annotation={TEKTON_PIPELINES_BUILD_NAMESPACE}
+        annotation={TEKTON_PIPELINES_ANNOTATION}
       />
-      <h1>
-        Or use a label selector query, which takes precedence over the previous
-        annotation.
-      </h1>
-      <Button
+
+      <LinkButton
         variant="contained"
         color="primary"
-        href="https://backstage.io/docs/features/kubernetes/configuration#surfacing-your-kubernetes-components-as-part-of-an-entity"
+        href="https://github.com/jquad-group/backstage-jquad"
         to=""
       >
-        Read Kubernetes Plugin Docs
-      </Button>
+        Read Tekton Pipelines Plugin Docs
+      </LinkButton>
     </>
   );
 };
