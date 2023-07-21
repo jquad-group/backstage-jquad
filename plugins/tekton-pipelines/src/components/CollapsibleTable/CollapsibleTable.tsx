@@ -27,7 +27,7 @@ export const CollapsibleTable = ({ clusterName, pipelineruns }: PipelineRunProps
   }
 
   const handleChangePage = (
-    event: React.MouseEvent<HTMLButtonElement> | null,
+    _event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number,
   ) => {
     setPage(newPage);

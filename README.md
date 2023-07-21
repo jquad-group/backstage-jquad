@@ -69,7 +69,7 @@ kubernetes:
 To incorporate the Tekton Pipelines plugin into your custom Backstage app, follow these steps:
 
 1. Navigate to `./packages/app`, and install the frontend plugin using yarn:
-`yarn add @jquad-group/plugin-tekton-pipelines@1.0.0`
+`yarn add @jquad-group/backstage-plugin-tekton-pipelines-plugin@1.0.0`
 
 2. In your Backstage app, navigate to the file `./packages/app/src/components/catalog/EntityPage.tsx` and add the following code:
 

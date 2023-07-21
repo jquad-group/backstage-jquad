@@ -131,7 +131,7 @@ export const TektonDashboardComponent = ({
 
 };
 
-function isCustomResource(n:FetchResponse, i?:number, arr?:FetchResponse[]) {
+function isCustomResource(n:FetchResponse) {
 	 
 	if(n.type === 'customresources') {
 		return true;
@@ -141,7 +141,7 @@ function isCustomResource(n:FetchResponse, i?:number, arr?:FetchResponse[]) {
 	}
 }
 
-function isPipelineRun(n:any, i?:number, arr?:any[]): n is PipelineRun {
+function isPipelineRun(n:any): n is PipelineRun {
   if (n.kind === 'PipelineRun') {
     return true;
   } else {
@@ -149,7 +149,7 @@ function isPipelineRun(n:any, i?:number, arr?:any[]): n is PipelineRun {
   }
 }
 
-function isTaskRun(n:any, i?:number, arr?:any[]): n is TaskRun {
+function isTaskRun(n:any): n is TaskRun {
   if (n.kind === 'TaskRun') {
     return true;
   } else {
