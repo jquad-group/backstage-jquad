@@ -1,6 +1,6 @@
 # Tekton Pipelines Plugin Documentation
 
-The `main`` branch is unstable, and contains experimental features, so please install and configure the plugin using the latest tag: [0.3.3](https://github.com/jquad-group/backstage-jquad/tree/v0.3.3) 
+The `main` branch is unstable, and contains experimental features, so please install and configure the plugin using the latest tag: [0.3.3](https://github.com/jquad-group/backstage-jquad/tree/v0.3.3) 
 
 1. [Overview](#overview)
 2. [Pre-requirements](#pre-requirements)
