@@ -6,13 +6,9 @@ import { Table, Typography, Box, TableBody, TableRow, TableCell, IconButton, Col
 import { TablePaginationActionsProps } from '@material-ui/core/TablePagination/TablePaginationActions';
 /* ignore lint error for internal dependencies */
 /* eslint-disable */
-import { PipelineRun } from '@jquad-group/plugin-tekton-pipelines-common';
-import { setEnvironmentData } from 'worker_threads';
+import { PipelineRun } from '../../types';
 import { TaskRunRow } from '../TaskRunRow';
 /* eslint-enable */
-export const TEKTON_PIPELINES_BUILD_NAMESPACE = 'tektonci/build-namespace';
-export const TEKTON_PIPELINES_LABEL_SELECTOR = "tektonci/pipeline-label-selector";
-
 
 
 function StatusComponent(props: { reason: string; }): JSX.Element {
@@ -102,6 +98,11 @@ export function CollapsibleTableRow(props: { clusterName: string, pipelineRun: P
   const { clusterName, pipelineRun } = props;
   const [open, setOpen] = React.useState(false);
   
+  
+  if (pipelineRun.status.completionTime === undefined) {
+    pipelineRun.status.completionTime = "";
+  }
+
   return (
     <React.Fragment>
       <TableRow>
@@ -119,8 +120,8 @@ export function CollapsibleTableRow(props: { clusterName: string, pipelineRun: P
         </TableCell>
         <TableCell align="right">{pipelineRun.metadata.namespace}</TableCell>
         <TableCell align="right"><StatusComponent reason={pipelineRun.status.conditions[0].reason} />{pipelineRun.status.conditions[0].reason}</TableCell>
-        <TableCell align="right">{pipelineRun.status.startTime.toLocaleString()}</TableCell>
-        <TableCell align="right">{pipelineRun.status.durationString}</TableCell>
+        <TableCell align="right">{pipelineRun.status.startTime}</TableCell>
+        <TableCell align="right">{pipelineRun.status.completionTime}</TableCell>
         <TableCell align="right"><a href={pipelineRun.pipelineRunDashboardUrl} target="_blank">Link</a></TableCell>
       </TableRow>
       <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
@@ -134,7 +135,8 @@ export function CollapsibleTableRow(props: { clusterName: string, pipelineRun: P
                 <TableCell>Name</TableCell>
                 <TableCell>Step</TableCell>
                 <TableCell>Status</TableCell>
-                <TableCell>Duration</TableCell>
+                <TableCell>Start Time</TableCell>
+                <TableCell>Completition Time</TableCell>
                 <TableCell>Log</TableCell>
               </TableRow>
             </TableHead>

@@ -1,16 +1,12 @@
 import React from 'react';
 // eslint-disable-next-line  no-restricted-imports
-import { Table, TableContainer, TableBody, TableRow, TableCell, TableHead, Paper, TablePagination, TableFooter } from '@material-ui/core';
+import { Table, TableContainer, TableBody, TableRow, TableCell, TableHead, TablePagination, TableFooter } from '@material-ui/core';
 /* ignore lint error for internal dependencies */
 /* eslint-disable */
-import { PipelineRun } from '@jquad-group/plugin-tekton-pipelines-common';
+import { PipelineRun } from '../../types';
 /* eslint-enable */
 import TablePaginationActions from '@material-ui/core/TablePagination/TablePaginationActions';
 import { CollapsibleTableRow } from '../CollapsibleTableRow';
-
-export const TEKTON_PIPELINES_BUILD_NAMESPACE = 'tektonci/build-namespace';
-export const TEKTON_PIPELINES_LABEL_SELECTOR = "tektonci/pipeline-label-selector";
-
 
 type PipelineRunProps = {
   clusterName?: string;
@@ -54,7 +50,7 @@ export const CollapsibleTable = ({ clusterName, pipelineruns }: PipelineRunProps
             <TableCell align="right">Namespace</TableCell>
             <TableCell align="right">Status</TableCell>
             <TableCell align="right">Start Time</TableCell>
-            <TableCell align="right">Duration</TableCell>
+            <TableCell align="right">Completion Time</TableCell>
             <TableCell align="right">Dashboard</TableCell>
           </TableRow>
         </TableHead>
