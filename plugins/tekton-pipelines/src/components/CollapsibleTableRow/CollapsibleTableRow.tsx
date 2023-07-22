@@ -5,31 +5,34 @@ import { KeyboardArrowDown, KeyboardArrowUp } from '@material-ui/icons';
 import { Table, Typography, TableBody, TableRow, TableCell, IconButton, Collapse, TableHead } from '@material-ui/core';
 /* ignore lint error for internal dependencies */
 /* eslint-disable */
-import { PipelineRun } from '../../types';
+import { Condition, PipelineRun } from '../../types';
 import { TaskRunRow } from '../TaskRunRow';
 /* eslint-enable */
 
 
-function StatusComponent(props: { reason: string; }): JSX.Element {
-  if (props.reason === 'Created') {
+function StatusComponent(props: { conditions: [Condition]; }): JSX.Element {
+  if ((props.conditions === undefined) || (props.conditions.length <= 0)) {
     return <StatusPending />;
-  } else
-    if (props.reason === 'Running') {
-      return <StatusRunning />;
+  } else 
+    if (props.conditions[0].reason === 'Created') {
+      return <StatusPending />;
     } else
-      if (props.reason === 'Completed') {
-        return <StatusOK />;
+      if (props.conditions[0].reason === 'Running') {
+        return <StatusRunning />;
       } else
-        if (props.reason === 'Succeeded') {
+        if (props.conditions[0].reason === 'Completed') {
           return <StatusOK />;
         } else
-          if (props.reason === 'PipelineRunCancelled') {
-            return <StatusWarning />;
+          if (props.conditions[0].reason === 'Succeeded') {
+            return <StatusOK />;
           } else
-            if (props.reason === 'Failed') {
-              return <StatusError />;
-            }
-  if (props.reason === 'Error') {
+            if (props.conditions[0].reason === 'PipelineRunCancelled') {
+              return <StatusWarning />;
+            } else
+              if (props.conditions[0].reason === 'Failed') {
+                return <StatusError />;
+              }
+  if (props.conditions[0].reason === 'Error') {
     return <StatusError />;
   }
   return <StatusPending />;
@@ -63,7 +66,7 @@ export function CollapsibleTableRow(props: { clusterName: string, pipelineRun: P
           {pipelineRun.metadata.name}
         </TableCell>
         <TableCell align="right">{pipelineRun.metadata.namespace}</TableCell>
-        <TableCell align="right"><StatusComponent reason={pipelineRun.status.conditions[0].reason} />{pipelineRun.status.conditions[0].reason}</TableCell>
+        <TableCell align="right"><StatusComponent conditions={pipelineRun.status.conditions} />{pipelineRun.status.conditions[0].reason}</TableCell>
         <TableCell align="right">{pipelineRun.status.startTime}</TableCell>
         <TableCell align="right">{pipelineRun.status.completionTime}</TableCell>
         <TableCell align="right"><a href={pipelineRun.pipelineRunDashboardUrl} target="_blank">Link</a></TableCell>
