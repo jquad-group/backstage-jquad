@@ -1,0 +1,1242 @@
+{
+    "customresources": [
+            {
+            "apiVersion": "tekton.dev/v1",
+            "kind": "PipelineRun",
+            "metadata": {
+                "creationTimestamp": "2023-07-22T17:09:21Z",
+                "generateName": "microservice-pipeline-",
+                "generation": 1,
+                "labels": {
+                    "app": "microservice",
+                    "tekton.dev/pipeline": "pullrequest-pipeline-go"
+                },
+                "name": "microservice-pipeline-2gad6",
+                "namespace": "pipeline-demo",
+                "resourceVersion": "1261601",
+                "uid": "ae3a7d7d-fade-4ccc-800e-a6945359f12e"
+            },
+            "spec": {
+                "params": [
+                    {
+                        "name": "pathToContext",
+                        "value": "/workspace/repo"
+                    },
+                    {
+                        "name": "commit",
+                        "value": ""
+                    },
+                    {
+                        "name": "branch-name",
+                        "value": "main"
+                    },
+                    {
+                        "name": "repo-url",
+                        "value": "https://github.com/jquad-group/cloudland2023.git"
+                    },
+                    {
+                        "name": "repo-url-alternate",
+                        "value": "https://github.com/jquad-group/cloudland2023.git"
+                    },
+                    {
+                        "name": "gitrevision",
+                        "value": "main"
+                    },
+                    {
+                        "name": "owner",
+                        "value": "jquad-group"
+                    },
+                    {
+                        "name": "repository",
+                        "value": "cloudland2023"
+                    },
+                    {
+                        "name": "statusUrl",
+                        "value": "https://api.github.com"
+                    },
+                    {
+                        "name": "state",
+                        "value": "success"
+                    },
+                    {
+                        "name": "targetUrl",
+                        "value": "http://localhost:9097/#/pipelineruns"
+                    },
+                    {
+                        "name": "context",
+                        "value": "cloudland2023/tekton-ci"
+                    },
+                    {
+                        "name": "githubSecretName",
+                        "value": "git-clone"
+                    },
+                    {
+                        "name": "githubAccessTokenKey",
+                        "value": "accessToken"
+                    }
+                ],
+                "pipelineRef": {
+                    "name": "pullrequest-pipeline-go"
+                },
+                "taskRunTemplate": {
+                    "podTemplate": {
+                        "securityContext": {
+                            "fsGroup": 0,
+                            "runAsGroup": 0,
+                            "runAsUser": 0
+                        }
+                    },
+                    "serviceAccountName": "build-robot"
+                },
+                "timeouts": {
+                    "pipeline": "1h0m0s"
+                },
+                "workspaces": [
+                    {
+                        "name": "workspace",
+                        "volumeClaimTemplate": {
+                            "metadata": {
+                                "creationTimestamp": null
+                            },
+                            "spec": {
+                                "accessModes": [
+                                    "ReadWriteOnce"
+                                ],
+                                "resources": {
+                                    "requests": {
+                                        "storage": "128Mi"
+                                    }
+                                },
+                                "volumeMode": "Filesystem"
+                            },
+                            "status": {}
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "childReferences": [
+                    {
+                        "apiVersion": "tekton.dev/v1",
+                        "kind": "TaskRun",
+                        "name": "microservice-pipeline-2gad6-clone",
+                        "pipelineTaskName": "clone"
+                    },
+                    {
+                        "apiVersion": "tekton.dev/v1",
+                        "kind": "TaskRun",
+                        "name": "microservice-pipeline-2gad6-github-commit-status-pending",
+                        "pipelineTaskName": "github-commit-status-pending"
+                    },
+                    {
+                        "apiVersion": "tekton.dev/v1",
+                        "kind": "TaskRun",
+                        "name": "microservice-pipeline-2gad6-build-and-test-task-go",
+                        "pipelineTaskName": "build-and-test-task-go"
+                    },
+                    {
+                        "apiVersion": "tekton.dev/v1",
+                        "kind": "TaskRun",
+                        "name": "microservice-pipeline-2gad6-github-commit-status-success",
+                        "pipelineTaskName": "github-commit-status-success",
+                        "whenExpressions": [
+                            {
+                                "input": "$(tasks.build-and-test-task-go.status)",
+                                "operator": "in",
+                                "values": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "completionTime": "2023-07-22T17:12:08Z",
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2023-07-22T17:12:08Z",
+                        "message": "Tasks Completed: 4 (Failed: 0, Cancelled 0), Skipped: 1",
+                        "reason": "Completed",
+                        "status": "True",
+                        "type": "Succeeded"
+                    }
+                ],
+                "finallyStartTime": "2023-07-22T17:12:00Z",
+                "pipelineSpec": {
+                    "finally": [
+                        {
+                            "name": "github-commit-status-error",
+                            "params": [
+                                {
+                                    "name": "statusUrl",
+                                    "value": "https://api.github.com"
+                                },
+                                {
+                                    "name": "description",
+                                    "value": "The build has failed."
+                                },
+                                {
+                                    "name": "state",
+                                    "value": "error"
+                                },
+                                {
+                                    "name": "targetUrl",
+                                    "value": "http://localhost:9097/#/pipelineruns"
+                                },
+                                {
+                                    "name": "context",
+                                    "value": "cloudland2023/tekton-ci"
+                                },
+                                {
+                                    "name": "secretName",
+                                    "value": "git-clone"
+                                },
+                                {
+                                    "name": "accessTokenKey",
+                                    "value": "accessToken"
+                                }
+                            ],
+                            "taskRef": {
+                                "kind": "Task",
+                                "name": "github-commit-status"
+                            },
+                            "when": [
+                                {
+                                    "input": "$(tasks.build-and-test-task-go.status)",
+                                    "operator": "in",
+                                    "values": [
+                                        "Failed"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "github-commit-status-success",
+                            "params": [
+                                {
+                                    "name": "statusUrl",
+                                    "value": "https://api.github.com"
+                                },
+                                {
+                                    "name": "description",
+                                    "value": "The build was successfull."
+                                },
+                                {
+                                    "name": "state",
+                                    "value": "success"
+                                },
+                                {
+                                    "name": "targetUrl",
+                                    "value": "http://localhost:9097/#/pipelineruns"
+                                },
+                                {
+                                    "name": "context",
+                                    "value": "cloudland2023/tekton-ci"
+                                },
+                                {
+                                    "name": "secretName",
+                                    "value": "git-clone"
+                                },
+                                {
+                                    "name": "accessTokenKey",
+                                    "value": "accessToken"
+                                }
+                            ],
+                            "taskRef": {
+                                "kind": "Task",
+                                "name": "github-commit-status"
+                            },
+                            "when": [
+                                {
+                                    "input": "$(tasks.build-and-test-task-go.status)",
+                                    "operator": "in",
+                                    "values": [
+                                        "Succeeded"
+                                    ]
+                                }
+                            ]
+                        }
+                    ],
+                    "params": [
+                        {
+                            "name": "repo-url",
+                            "type": "string"
+                        },
+                        {
+                            "default": "",
+                            "description": "The git repository URL to clone from.",
+                            "name": "repo-url-alternate",
+                            "type": "string"
+                        },
+                        {
+                            "description": "The git branch to clone.",
+                            "name": "branch-name",
+                            "type": "string"
+                        },
+                        {
+                            "description": "the git project owner",
+                            "name": "owner",
+                            "type": "string"
+                        },
+                        {
+                            "description": "the git project repository",
+                            "name": "repository",
+                            "type": "string"
+                        },
+                        {
+                            "description": "The build context used by Kaniko",
+                            "name": "pathToContext",
+                            "type": "string"
+                        },
+                        {
+                            "default": "",
+                            "description": "subdirectory",
+                            "name": "subdirectory",
+                            "type": "string"
+                        },
+                        {
+                            "name": "statusUrl",
+                            "type": "string"
+                        },
+                        {
+                            "default": "pending",
+                            "name": "statePending",
+                            "type": "string"
+                        },
+                        {
+                            "default": "The build was successfull.",
+                            "name": "descriptionSuccess",
+                            "type": "string"
+                        },
+                        {
+                            "default": "success",
+                            "name": "stateSuccess",
+                            "type": "string"
+                        },
+                        {
+                            "default": "error",
+                            "name": "stateError",
+                            "type": "string"
+                        },
+                        {
+                            "default": "The build has failed.",
+                            "name": "descriptionError",
+                            "type": "string"
+                        },
+                        {
+                            "default": "The build is currently running.",
+                            "name": "descriptionPending",
+                            "type": "string"
+                        },
+                        {
+                            "default": "http://localhost:9097",
+                            "name": "targetUrl",
+                            "type": "string"
+                        },
+                        {
+                            "default": "cloudland2023/tekton-ci",
+                            "name": "context",
+                            "type": "string"
+                        },
+                        {
+                            "name": "githubSecretName",
+                            "type": "string"
+                        },
+                        {
+                            "name": "githubAccessTokenKey",
+                            "type": "string"
+                        }
+                    ],
+                    "tasks": [
+                        {
+                            "name": "clone",
+                            "params": [
+                                {
+                                    "name": "url",
+                                    "value": "https://github.com/jquad-group/cloudland2023.git"
+                                },
+                                {
+                                    "name": "url-alternate",
+                                    "value": "https://github.com/jquad-group/cloudland2023.git"
+                                },
+                                {
+                                    "name": "revision",
+                                    "value": "main"
+                                },
+                                {
+                                    "name": "refspec",
+                                    "value": "+refs/tags/*:refs/tags/* +refs/heads/*:refs/heads/*"
+                                },
+                                {
+                                    "name": "deleteExisting",
+                                    "value": "true"
+                                },
+                                {
+                                    "name": "sslVerify",
+                                    "value": "false"
+                                },
+                                {
+                                    "name": "depth",
+                                    "value": "1"
+                                },
+                                {
+                                    "name": "subdirectory",
+                                    "value": ""
+                                }
+                            ],
+                            "taskRef": {
+                                "kind": "Task",
+                                "name": "git-clone"
+                            },
+                            "workspaces": [
+                                {
+                                    "name": "repo",
+                                    "workspace": "workspace"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "github-commit-status-pending",
+                            "params": [
+                                {
+                                    "name": "statusUrl",
+                                    "value": "https://api.github.com"
+                                },
+                                {
+                                    "name": "description",
+                                    "value": "The build is currently running."
+                                },
+                                {
+                                    "name": "state",
+                                    "value": "pending"
+                                },
+                                {
+                                    "name": "targetUrl",
+                                    "value": "http://localhost:9097/#/pipelineruns"
+                                },
+                                {
+                                    "name": "context",
+                                    "value": "cloudland2023/tekton-ci"
+                                },
+                                {
+                                    "name": "secretName",
+                                    "value": "git-clone"
+                                },
+                                {
+                                    "name": "accessTokenKey",
+                                    "value": "accessToken"
+                                }
+                            ],
+                            "runAfter": [
+                                "clone"
+                            ],
+                            "taskRef": {
+                                "kind": "Task",
+                                "name": "github-commit-status"
+                            }
+                        },
+                        {
+                            "name": "build-and-test-task-go",
+                            "runAfter": [
+                                "github-commit-status-pending"
+                            ],
+                            "taskRef": {
+                                "kind": "Task",
+                                "name": "build-and-test-task-go"
+                            },
+                            "workspaces": [
+                                {
+                                    "name": "repo",
+                                    "workspace": "workspace"
+                                }
+                            ]
+                        }
+                    ],
+                    "workspaces": [
+                        {
+                            "name": "workspace"
+                        }
+                    ]
+                },
+                "provenance": {
+                    "featureFlags": {
+                        "AwaitSidecarReadiness": true,
+                        "DisableAffinityAssistant": false,
+                        "DisableCredsInit": false,
+                        "EnableAPIFields": "beta",
+                        "EnableProvenanceInStatus": true,
+                        "EnableTektonOCIBundles": false,
+                        "EnforceNonfalsifiability": "",
+                        "MaxResultSize": 4096,
+                        "RequireGitSSHSecretKnownHosts": false,
+                        "ResultExtractionMethod": "termination-message",
+                        "RunningInEnvWithInjectedSidecars": true,
+                        "ScopeWhenExpressionsToTask": false,
+                        "SendCloudEventsForRuns": false,
+                        "SetSecurityContext": false,
+                        "VerificationNoMatchPolicy": "ignore"
+                    }
+                },
+                "skippedTasks": [
+                    {
+                        "name": "github-commit-status-error",
+                        "reason": "When Expressions evaluated to false",
+                        "whenExpressions": [
+                            {
+                                "input": "Succeeded",
+                                "operator": "in",
+                                "values": [
+                                    "Failed"
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "startTime": "2023-07-22T17:09:21Z"
+            }
+        },
+        {
+            "apiVersion": "tekton.dev/v1",
+            "kind": "TaskRun",
+            "metadata": {
+                "annotations": {
+                    "pipeline.tekton.dev/affinity-assistant": "affinity-assistant-01fe9f7e1d",
+                    "pipeline.tekton.dev/release": "c802069"
+                },
+                "creationTimestamp": "2023-07-22T17:11:53Z",
+                "generation": 1,
+                "labels": {
+                    "app": "microservice",
+                    "app.kubernetes.io/managed-by": "tekton-pipelines",
+                    "tekton.dev/memberOf": "tasks",
+                    "tekton.dev/pipeline": "pullrequest-pipeline-go",
+                    "tekton.dev/pipelineRun": "microservice-pipeline-2gad6",
+                    "tekton.dev/pipelineTask": "build-and-test-task-go",
+                    "tekton.dev/task": "build-and-test-task-go"
+                },
+                "name": "microservice-pipeline-2gad6-build-and-test-task-go",
+                "namespace": "pipeline-demo",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "tekton.dev/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "PipelineRun",
+                        "name": "microservice-pipeline-2gad6",
+                        "uid": "ae3a7d7d-fade-4ccc-800e-a6945359f12e"
+                    }
+                ],
+                "resourceVersion": "1261530",
+                "uid": "2b44bac9-a86e-4db3-b0ab-124904bff631"
+            },
+            "spec": {
+                "podTemplate": {
+                    "securityContext": {
+                        "fsGroup": 0,
+                        "runAsGroup": 0,
+                        "runAsUser": 0
+                    }
+                },
+                "serviceAccountName": "build-robot",
+                "taskRef": {
+                    "kind": "Task",
+                    "name": "build-and-test-task-go"
+                },
+                "timeout": "1h0m0s",
+                "workspaces": [
+                    {
+                        "name": "repo",
+                        "persistentVolumeClaim": {
+                            "claimName": "pvc-e5c7096ca4-affinity-assistant-01fe9f7e1d-0"
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "completionTime": "2023-07-22T17:12:00Z",
+                "podName": "microservice-pipeline-2gad6-build-and-test-task-go-pod",
+                "provenance": {
+                    "featureFlags": {
+                        "AwaitSidecarReadiness": true,
+                        "DisableAffinityAssistant": false,
+                        "DisableCredsInit": false,
+                        "EnableAPIFields": "beta",
+                        "EnableProvenanceInStatus": true,
+                        "EnableTektonOCIBundles": false,
+                        "EnforceNonfalsifiability": "",
+                        "MaxResultSize": 4096,
+                        "RequireGitSSHSecretKnownHosts": false,
+                        "ResultExtractionMethod": "termination-message",
+                        "RunningInEnvWithInjectedSidecars": true,
+                        "ScopeWhenExpressionsToTask": false,
+                        "SendCloudEventsForRuns": false,
+                        "SetSecurityContext": false,
+                        "VerificationNoMatchPolicy": "ignore"
+                    }
+                },
+                "startTime": "2023-07-22T17:11:53Z",
+                "steps": [
+                    {
+                        "container": "step-test",
+                        "imageID": "docker.io/library/golang@sha256:10e3c0f39f8e237baa5b66c5295c578cac42a99536cc9333d8505324a82407d9",
+                        "name": "test",
+                        "terminated": {
+                            "containerID": "containerd://1579b8622bc92812e67a0567079f650d770b3b81a2027b15b62b3a1ff854f6db",
+                            "exitCode": 0,
+                            "finishedAt": "2023-07-22T17:11:59Z",
+                            "reason": "Completed",
+                            "startedAt": "2023-07-22T17:11:59Z"
+                        }
+                    },
+                    {
+                        "container": "step-build",
+                        "imageID": "docker.io/library/golang@sha256:10e3c0f39f8e237baa5b66c5295c578cac42a99536cc9333d8505324a82407d9",
+                        "name": "build",
+                        "terminated": {
+                            "containerID": "containerd://bd1496421f654c683b880edda8e434dd9084874d6f8e49916fc55c609822d899",
+                            "exitCode": 0,
+                            "finishedAt": "2023-07-22T17:11:59Z",
+                            "reason": "Completed",
+                            "startedAt": "2023-07-22T17:11:59Z"
+                        }
+                    }
+                ],
+                "taskSpec": {
+                    "steps": [
+                        {
+                            "computeResources": {},
+                            "image": "golang:1.19.3",
+                            "imagePullPolicy": "IfNotPresent",
+                            "name": "test",
+                            "script": "cd /workspace/repo\nmake test"
+                        },
+                        {
+                            "computeResources": {},
+                            "image": "golang:1.19.3",
+                            "imagePullPolicy": "IfNotPresent",
+                            "name": "build",
+                            "script": "cd /workspace/repo\nmake        "
+                        }
+                    ],
+                    "workspaces": [
+                        {
+                            "name": "repo"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "apiVersion": "tekton.dev/v1",
+            "kind": "TaskRun",
+            "metadata": {
+                "annotations": {
+                    "pipeline.tekton.dev/affinity-assistant": "affinity-assistant-01fe9f7e1d",
+                    "pipeline.tekton.dev/release": "c802069"
+                },
+                "creationTimestamp": "2023-07-22T17:09:21Z",
+                "generation": 1,
+                "labels": {
+                    "app": "microservice",
+                    "app.kubernetes.io/managed-by": "tekton-pipelines",
+                    "tekton.dev/memberOf": "tasks",
+                    "tekton.dev/pipeline": "pullrequest-pipeline-go",
+                    "tekton.dev/pipelineRun": "microservice-pipeline-2gad6",
+                    "tekton.dev/pipelineTask": "clone",
+                    "tekton.dev/task": "git-clone"
+                },
+                "name": "microservice-pipeline-2gad6-clone",
+                "namespace": "pipeline-demo",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "tekton.dev/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "PipelineRun",
+                        "name": "microservice-pipeline-2gad6",
+                        "uid": "ae3a7d7d-fade-4ccc-800e-a6945359f12e"
+                    }
+                ],
+                "resourceVersion": "1260244",
+                "uid": "3c57c163-eb76-415e-aff1-d962349898fa"
+            },
+            "spec": {
+                "params": [
+                    {
+                        "name": "url",
+                        "value": "https://github.com/jquad-group/cloudland2023.git"
+                    },
+                    {
+                        "name": "url-alternate",
+                        "value": "https://github.com/jquad-group/cloudland2023.git"
+                    },
+                    {
+                        "name": "revision",
+                        "value": "main"
+                    },
+                    {
+                        "name": "refspec",
+                        "value": "+refs/tags/*:refs/tags/* +refs/heads/*:refs/heads/*"
+                    },
+                    {
+                        "name": "deleteExisting",
+                        "value": "true"
+                    },
+                    {
+                        "name": "sslVerify",
+                        "value": "false"
+                    },
+                    {
+                        "name": "depth",
+                        "value": "1"
+                    },
+                    {
+                        "name": "subdirectory",
+                        "value": ""
+                    }
+                ],
+                "podTemplate": {
+                    "securityContext": {
+                        "fsGroup": 0,
+                        "runAsGroup": 0,
+                        "runAsUser": 0
+                    }
+                },
+                "serviceAccountName": "build-robot",
+                "taskRef": {
+                    "kind": "Task",
+                    "name": "git-clone"
+                },
+                "timeout": "1h0m0s",
+                "workspaces": [
+                    {
+                        "name": "repo",
+                        "persistentVolumeClaim": {
+                            "claimName": "pvc-e5c7096ca4-affinity-assistant-01fe9f7e1d-0"
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "completionTime": "2023-07-22T17:10:09Z",
+                "podName": "microservice-pipeline-2gad6-clone-pod",
+                "provenance": {
+                    "featureFlags": {
+                        "AwaitSidecarReadiness": true,
+                        "DisableAffinityAssistant": false,
+                        "DisableCredsInit": false,
+                        "EnableAPIFields": "beta",
+                        "EnableProvenanceInStatus": true,
+                        "EnableTektonOCIBundles": false,
+                        "EnforceNonfalsifiability": "",
+                        "MaxResultSize": 4096,
+                        "RequireGitSSHSecretKnownHosts": false,
+                        "ResultExtractionMethod": "termination-message",
+                        "RunningInEnvWithInjectedSidecars": true,
+                        "ScopeWhenExpressionsToTask": false,
+                        "SendCloudEventsForRuns": false,
+                        "SetSecurityContext": false,
+                        "VerificationNoMatchPolicy": "ignore"
+                    }
+                },
+                "results": [
+                    {
+                        "name": "commit",
+                        "type": "string",
+                        "value": "2f4d64564d4be5187a78eeac460c49ed57ae0e19"
+                    },
+                    {
+                        "name": "lock-pid",
+                        "type": "string",
+                        "value": "3c57c163-eb76-415e-aff1-d962349898fa\n"
+                    }
+                ],
+                "startTime": "2023-07-22T17:09:21Z",
+                "steps": [
+                    {
+                        "container": "step-clone",
+                        "imageID": "gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init@sha256:ec618dfa0fc23ae90105135be96bb8c0f9250bfd7682d9d5bab845ab6fd50528",
+                        "name": "clone",
+                        "terminated": {
+                            "containerID": "containerd://3b9a805ddbe452dbbb1e0aa2cc521f60e8db26a1a7ad0b711280955e9e447c7e",
+                            "exitCode": 0,
+                            "finishedAt": "2023-07-22T17:10:05Z",
+                            "message": "[{\"key\":\"commit\",\"value\":\"2f4d64564d4be5187a78eeac460c49ed57ae0e19\",\"type\":1},{\"key\":\"lock-pid\",\"value\":\"3c57c163-eb76-415e-aff1-d962349898fa\\n\",\"type\":1},{\"key\":\"url\",\"value\":\"https://github.com/jquad-group/cloudland2023.git\"}]",
+                            "reason": "Completed",
+                            "startedAt": "2023-07-22T17:10:04Z"
+                        }
+                    }
+                ],
+                "taskSpec": {
+                    "params": [
+                        {
+                            "description": "git https or ssh url to clone",
+                            "name": "url",
+                            "type": "string"
+                        },
+                        {
+                            "default": "",
+                            "description": "git https or ssh url to clone if not provided, url is used as default",
+                            "name": "url-alternate",
+                            "type": "string"
+                        },
+                        {
+                            "default": "master",
+                            "description": "git revision to checkout (branch, tag, sha, refÔÇª)",
+                            "name": "revision",
+                            "type": "string"
+                        },
+                        {
+                            "default": "",
+                            "description": "(optional) git refspec to fetch before checking out revision",
+                            "name": "refspec",
+                            "type": "string"
+                        },
+                        {
+                            "default": "false",
+                            "description": "defines if the resource should initialize and fetch the submodules",
+                            "name": "submodules",
+                            "type": "string"
+                        },
+                        {
+                            "default": "1",
+                            "description": "performs a shallow clone where only the most recent commit(s) will be fetched",
+                            "name": "depth",
+                            "type": "string"
+                        },
+                        {
+                            "default": "true",
+                            "description": "defines if http.sslVerify should be set to true or false in the global git config",
+                            "name": "sslVerify",
+                            "type": "string"
+                        },
+                        {
+                            "default": "",
+                            "description": "subdirectory inside the \"output\" workspace to clone the git repo into",
+                            "name": "subdirectory",
+                            "type": "string"
+                        },
+                        {
+                            "default": "false",
+                            "description": "clean out the contents of the repo's destination directory (if it already exists) before trying to clone the repo there",
+                            "name": "deleteExisting",
+                            "type": "string"
+                        },
+                        {
+                            "default": "",
+                            "description": "git HTTP proxy server for non-SSL requests",
+                            "name": "httpProxy",
+                            "type": "string"
+                        },
+                        {
+                            "default": "",
+                            "description": "git HTTPS proxy server for SSL requests",
+                            "name": "httpsProxy",
+                            "type": "string"
+                        },
+                        {
+                            "default": "",
+                            "description": "git no proxy - opt out of proxying HTTP/HTTPS requests",
+                            "name": "noProxy",
+                            "type": "string"
+                        },
+                        {
+                            "default": "gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.37.0",
+                            "description": "The image used where the git-init binary is.",
+                            "name": "gitInitImage",
+                            "type": "string"
+                        }
+                    ],
+                    "results": [
+                        {
+                            "description": "The precise commit SHA that was fetched by this Task",
+                            "name": "commit",
+                            "type": "string"
+                        },
+                        {
+                            "description": "The final execution status should be \"Succeeded\", can be replaced in \u003e tekton v20.x",
+                            "name": "status",
+                            "type": "string"
+                        },
+                        {
+                            "description": "the pid set by the first step",
+                            "name": "lock-pid",
+                            "type": "string"
+                        }
+                    ],
+                    "steps": [
+                        {
+                            "computeResources": {},
+                            "image": "gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.37.0",
+                            "imagePullPolicy": "Always",
+                            "name": "clone",
+                            "script": "# check if given alternate url starts with https\nURL=\"https://github.com/jquad-group/cloudland2023.git\"\nif  echo \"https://github.com/jquad-group/cloudland2023.git\" | grep -E \"^[[:blank:]]*http[s]{0,1}://.+$\" ; then\n  URL=\"https://github.com/jquad-group/cloudland2023.git\"\nfi\n\nif  echo \"$URL\" | grep -v -E \"^[[:blank:]]*http[s]{0,1}://.+$\" ; then\n  echo \"Provide a valid https URI, either in url or in url-alternate\"\nfi\n\nCHECKOUT_DIR=\"/workspace/repo/\"\n\n# Locks\nTARGETDIR=\"/workspace/repo\"\nLOCKFOLDER=$TARGETDIR/.lock\nPIDFILE=$LOCKFOLDER/.pid\nLOGFILE=log\ndeleteLock(){\n    pid=$(cat /tekton/results/lock-pid)\n    content=$(cat $PIDFILE)\n    if [ \"$pid\" == \"$content\" ];then\n        echo \"deleting lock\"\n        rm -rf $LOCKFOLDER;\n    fi\n}\n\n# For exit not applicable in this use case\n#trapfunctions\ntrap_exit() {\n    echo \"trapping exit signal\" \u003e\u00262\n    deleteLock\n}\ntrap_int() {\n    echo \"trapping int signal\" \u003e\u00262\n    deleteLock\n    exit 1\n}\ntrap_term() {\n    echo \"trapping term signal\" \u003e\u00262\n    deleteLock\n    exit 3\n}\n#\n#\ntrap trap_exit EXIT\ntrap trap_int  INT\ntrap trap_term  TERM\n\naquireLock(){\n  mkdir -pv $TARGETDIR\n  let i=1\n  while ! mkdir $LOCKFOLDER ; do\n      echo \"waiting\"\n      sleep $i\n      let i+=2;\n      if $i \u003e= 60 ; then\n        # don't wait indefinitely\n        exit 4\n      fi\n  done\n\n  PID=3c57c163-eb76-415e-aff1-d962349898fa\n  echo \"aquired Lock\"\n  echo $PID \u003e $PIDFILE\n  echo $PID \u003e /tekton/results/lock-pid\n  echo $PID\n  touch $LOCKFOLDER\n}\n\n\ncleandir() {\n  # Delete any existing contents of the repo directory if it exists.\n  #\n  # We don't just \"rm -rf $CHECKOUT_DIR\" because $CHECKOUT_DIR might be \"/\"\n  # or the root of a mounted volume.\n  if [[ -d \"$CHECKOUT_DIR\" ]] ; then\n    # Delete non-hidden files and directories\n    rm -rf \"$CHECKOUT_DIR\"/*\n    # Delete files and directories starting with . but excluding .. and .lock\n    rm -rf  $CHECKOUT_DIR/.[!.]*[!lock]*\n    # Delete files and directories starting with .. plus any other character\n    rm -rf \"$CHECKOUT_DIR\"/..?*\n  fi\n}\n\naquireLock\n\nif [[ \"true\" == \"true\" ]] ; then\n  cleandir\nfi\ntest -z \"\" || export HTTP_PROXY=\ntest -z \"\" || export HTTPS_PROXY=\ntest -z \"\" || export NO_PROXY=\n/ko-app/git-init \\\n  -url \"$URL\" \\\n  -revision \"main\" \\\n  -refspec \"+refs/tags/*:refs/tags/* +refs/heads/*:refs/heads/*\" \\\n  -path \"$CHECKOUT_DIR\" \\\n  -sslVerify=\"false\" \\\n  -submodules=\"false\" \\\n  -depth \"1\"\ncd \"$CHECKOUT_DIR\"\nRESULT_SHA=\"$(git rev-parse HEAD | tr -d '\\n')\"\n\nEXIT_CODE=\"$?\"\n# deleted by trap\n# deleteLock\nif [ \"$EXIT_CODE\" != 0 ]\nthen\n  exit $EXIT_CODE\nfi\n# Make sure we don't add a trailing newline to the result!\necho -n \"$RESULT_SHA\" \u003e /tekton/results/commit"
+                        }
+                    ],
+                    "workspaces": [
+                        {
+                            "description": "The git repo will be cloned onto the volume backing this workspace",
+                            "name": "repo"
+                        }
+                    ]
+                }
+            }
+        },         
+        {
+            "apiVersion": "tekton.dev/v1",
+            "kind": "TaskRun",
+            "metadata": {
+                "annotations": {
+                    "pipeline.tekton.dev/release": "c802069"
+                },
+                "creationTimestamp": "2023-07-22T17:10:09Z",
+                "generation": 1,
+                "labels": {
+                    "app": "microservice",
+                    "app.kubernetes.io/managed-by": "tekton-pipelines",
+                    "tekton.dev/memberOf": "tasks",
+                    "tekton.dev/pipeline": "pullrequest-pipeline-go",
+                    "tekton.dev/pipelineRun": "microservice-pipeline-2gad6",
+                    "tekton.dev/pipelineTask": "github-commit-status-pending",
+                    "tekton.dev/task": "github-commit-status"
+                },
+                "name": "microservice-pipeline-2gad6-github-commit-status-pending",
+                "namespace": "pipeline-demo",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "tekton.dev/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "PipelineRun",
+                        "name": "microservice-pipeline-2gad6",
+                        "uid": "ae3a7d7d-fade-4ccc-800e-a6945359f12e"
+                    }
+                ],
+                "resourceVersion": "1261446",
+                "uid": "90fedfa9-c5e0-4fca-a4c5-627daf8a4ed5"
+            },
+            "spec": {
+                "params": [
+                    {
+                        "name": "statusUrl",
+                        "value": "https://api.github.com"
+                    },
+                    {
+                        "name": "description",
+                        "value": "The build is currently running."
+                    },
+                    {
+                        "name": "state",
+                        "value": "pending"
+                    },
+                    {
+                        "name": "targetUrl",
+                        "value": "http://localhost:9097/#/pipelineruns"
+                    },
+                    {
+                        "name": "context",
+                        "value": "cloudland2023/tekton-ci"
+                    },
+                    {
+                        "name": "secretName",
+                        "value": "git-clone"
+                    },
+                    {
+                        "name": "accessTokenKey",
+                        "value": "accessToken"
+                    }
+                ],
+                "podTemplate": {
+                    "securityContext": {
+                        "fsGroup": 0,
+                        "runAsGroup": 0,
+                        "runAsUser": 0
+                    }
+                },
+                "serviceAccountName": "build-robot",
+                "taskRef": {
+                    "kind": "Task",
+                    "name": "github-commit-status"
+                },
+                "timeout": "1h0m0s"
+            },
+            "status": {
+                "completionTime": "2023-07-22T17:11:53Z",
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2023-07-22T17:11:53Z",
+                        "message": "All Steps have completed executing",
+                        "reason": "Succeeded",
+                        "status": "True",
+                        "type": "Succeeded"
+                    }
+                ],
+                "podName": "microservice-pipeline-2gad6-github-commit-status-pending-pod",
+                "provenance": {
+                    "featureFlags": {
+                        "AwaitSidecarReadiness": true,
+                        "DisableAffinityAssistant": false,
+                        "DisableCredsInit": false,
+                        "EnableAPIFields": "beta",
+                        "EnableProvenanceInStatus": true,
+                        "EnableTektonOCIBundles": false,
+                        "EnforceNonfalsifiability": "",
+                        "MaxResultSize": 4096,
+                        "RequireGitSSHSecretKnownHosts": false,
+                        "ResultExtractionMethod": "termination-message",
+                        "RunningInEnvWithInjectedSidecars": true,
+                        "ScopeWhenExpressionsToTask": false,
+                        "SendCloudEventsForRuns": false,
+                        "SetSecurityContext": false,
+                        "VerificationNoMatchPolicy": "ignore"
+                    }
+                },
+                "startTime": "2023-07-22T17:10:10Z",
+                "steps": [
+                    {
+                        "container": "step-set-github-commit-status",
+                        "imageID": "docker.io/alpine/curl@sha256:d58e5dd6bd9d1fd7e0169a04ccf8655b7a68dda4ead6c9f334cfb71c8439531f",
+                        "name": "set-github-commit-status",
+                        "terminated": {
+                            "containerID": "containerd://56959b4870c0d1954670333b9b59b1af4c328251c317a03a6b16f24cfcbb17f6",
+                            "exitCode": 0,
+                            "finishedAt": "2023-07-22T17:11:52Z",
+                            "reason": "Completed",
+                            "startedAt": "2023-07-22T17:11:51Z"
+                        }
+                    }
+                ],
+                "taskSpec": {
+                    "params": [
+                        {
+                            "name": "statusUrl",
+                            "type": "string"
+                        },
+                        {
+                            "default": "success",
+                            "name": "state",
+                            "type": "string"
+                        },
+                        {
+                            "name": "description",
+                            "type": "string"
+                        },
+                        {
+                            "default": "http://localhost:9097/#/",
+                            "name": "targetUrl",
+                            "type": "string"
+                        },
+                        {
+                            "default": "cloudland2023/tekton-ci",
+                            "name": "context",
+                            "type": "string"
+                        },
+                        {
+                            "name": "secretName",
+                            "type": "string"
+                        },
+                        {
+                            "default": "accessToken",
+                            "name": "accessTokenKey",
+                            "type": "string"
+                        }
+                    ],
+                    "steps": [
+                        {
+                            "computeResources": {},
+                            "env": [
+                                {
+                                    "name": "GITHUB_ACCESS_TOKEN",
+                                    "valueFrom": {
+                                        "secretKeyRef": {
+                                            "key": "accessToken",
+                                            "name": "git-clone"
+                                        }
+                                    }
+                                }
+                            ],
+                            "image": "alpine/curl:latest",
+                            "imagePullPolicy": "Always",
+                            "name": "set-github-commit-status",
+                            "script": "curl \\\n-i \\\n-X \\\nPOST \\\n-H \\\n\"Accept: application/vnd.github.v3+json\" \\\n-H \\\n\"Authorization: Bearer ${GITHUB_ACCESS_TOKEN}\" \\\nhttps://api.github.com \\\n-d \\\n\"{\\\"state\\\":\\\"pending\\\",\\\"target_url\\\":\\\"http://localhost:9097/#/pipelineruns\\\",\\\"description\\\":\\\"The build is currently running.\\\",\\\"context\\\":\\\"cloudland2023/tekton-ci\\\"}\""
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "apiVersion": "tekton.dev/v1",
+            "kind": "TaskRun",
+            "metadata": {
+                "annotations": {
+                    "pipeline.tekton.dev/release": "c802069"
+                },
+                "creationTimestamp": "2023-07-22T17:12:00Z",
+                "generation": 1,
+                "labels": {
+                    "app": "microservice",
+                    "app.kubernetes.io/managed-by": "tekton-pipelines",
+                    "tekton.dev/memberOf": "finally",
+                    "tekton.dev/pipeline": "pullrequest-pipeline-go",
+                    "tekton.dev/pipelineRun": "microservice-pipeline-2gad6",
+                    "tekton.dev/pipelineTask": "github-commit-status-success",
+                    "tekton.dev/task": "github-commit-status"
+                },
+                "name": "microservice-pipeline-2gad6-github-commit-status-success",
+                "namespace": "pipeline-demo",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "tekton.dev/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "PipelineRun",
+                        "name": "microservice-pipeline-2gad6",
+                        "uid": "ae3a7d7d-fade-4ccc-800e-a6945359f12e"
+                    }
+                ],
+                "resourceVersion": "1261599",
+                "uid": "2f94841e-c862-4d84-a044-0fef724433e9"
+            },
+            "spec": {
+                "params": [
+                    {
+                        "name": "statusUrl",
+                        "value": "https://api.github.com"
+                    },
+                    {
+                        "name": "description",
+                        "value": "The build was successfull."
+                    },
+                    {
+                        "name": "state",
+                        "value": "success"
+                    },
+                    {
+                        "name": "targetUrl",
+                        "value": "http://localhost:9097/#/pipelineruns"
+                    },
+                    {
+                        "name": "context",
+                        "value": "cloudland2023/tekton-ci"
+                    },
+                    {
+                        "name": "secretName",
+                        "value": "git-clone"
+                    },
+                    {
+                        "name": "accessTokenKey",
+                        "value": "accessToken"
+                    }
+                ],
+                "podTemplate": {
+                    "securityContext": {
+                        "fsGroup": 0,
+                        "runAsGroup": 0,
+                        "runAsUser": 0
+                    }
+                },
+                "serviceAccountName": "build-robot",
+                "taskRef": {
+                    "kind": "Task",
+                    "name": "github-commit-status"
+                },
+                "timeout": "1h0m0s"
+            },
+            "status": {
+                "completionTime": "2023-07-22T17:12:08Z",
+                "conditions": [
+                ],
+                "podName": "microservice-pipeline-2gad6-github-commit-status-success-pod",
+                "provenance": {
+                    "featureFlags": {
+                        "AwaitSidecarReadiness": true,
+                        "DisableAffinityAssistant": false,
+                        "DisableCredsInit": false,
+                        "EnableAPIFields": "beta",
+                        "EnableProvenanceInStatus": true,
+                        "EnableTektonOCIBundles": false,
+                        "EnforceNonfalsifiability": "",
+                        "MaxResultSize": 4096,
+                        "RequireGitSSHSecretKnownHosts": false,
+                        "ResultExtractionMethod": "termination-message",
+                        "RunningInEnvWithInjectedSidecars": true,
+                        "ScopeWhenExpressionsToTask": false,
+                        "SendCloudEventsForRuns": false,
+                        "SetSecurityContext": false,
+                        "VerificationNoMatchPolicy": "ignore"
+                    }
+                },
+                "startTime": "2023-07-22T17:12:00Z",
+                "steps": [
+                    {
+                        "container": "step-set-github-commit-status",
+                        "imageID": "docker.io/alpine/curl@sha256:d58e5dd6bd9d1fd7e0169a04ccf8655b7a68dda4ead6c9f334cfb71c8439531f",
+                        "name": "set-github-commit-status",
+                        "terminated": {
+                            "containerID": "containerd://63c5721561bef7826546933733e8c63718276ee0ec4a8ee3f16b4f17902fabb7",
+                            "exitCode": 0,
+                            "finishedAt": "2023-07-22T17:12:08Z",
+                            "reason": "Completed",
+                            "startedAt": "2023-07-22T17:12:07Z"
+                        }
+                    }
+                ],
+                "taskSpec": {
+                    "params": [
+                        {
+                            "name": "statusUrl",
+                            "type": "string"
+                        },
+                        {
+                            "default": "success",
+                            "name": "state",
+                            "type": "string"
+                        },
+                        {
+                            "name": "description",
+                            "type": "string"
+                        },
+                        {
+                            "default": "http://localhost:9097/#/",
+                            "name": "targetUrl",
+                            "type": "string"
+                        },
+                        {
+                            "default": "cloudland2023/tekton-ci",
+                            "name": "context",
+                            "type": "string"
+                        },
+                        {
+                            "name": "secretName",
+                            "type": "string"
+                        },
+                        {
+                            "default": "accessToken",
+                            "name": "accessTokenKey",
+                            "type": "string"
+                        }
+                    ],
+                    "steps": [
+                        {
+                            "computeResources": {},
+                            "env": [
+                                {
+                                    "name": "GITHUB_ACCESS_TOKEN",
+                                    "valueFrom": {
+                                        "secretKeyRef": {
+                                            "key": "accessToken",
+                                            "name": "git-clone"
+                                        }
+                                    }
+                                }
+                            ],
+                            "image": "alpine/curl:latest",
+                            "imagePullPolicy": "Always",
+                            "name": "set-github-commit-status",
+                            "script": "curl \\\n-i \\\n-X \\\nPOST \\\n-H \\\n\"Accept: application/vnd.github.v3+json\" \\\n-H \\\n\"Authorization: Bearer ${GITHUB_ACCESS_TOKEN}\" \\\nhttps://api.github.com \\\n-d \\\n\"{\\\"state\\\":\\\"success\\\",\\\"target_url\\\":\\\"http://localhost:9097/#/pipelineruns\\\",\\\"description\\\":\\\"The build was successfull.\\\",\\\"context\\\":\\\"cloudland2023/tekton-ci\\\"}\""
+                        }
+                    ]
+                }
+            }
+        }                       
+    ]
+}

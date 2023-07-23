@@ -89,7 +89,15 @@ export const TektonDashboardComponent = ({
     // sort 
     clusters.map((cluster) => 
     cluster.pipelineRuns.sort((pipelineA, pipelineB) =>
-    pipelineA.status.startTime > pipelineB.status.startTime ? -1 : 1,));
+      pipelineA.status.startTime > pipelineB.status.startTime ? -1 : 1
+    ).map((pipeline) => {
+      // Sort TaskRun objects for each PipelineRun
+      pipeline.taskRuns.sort((taskRunA, taskRunB) =>
+        taskRunA.status.startTime < taskRunB.status.startTime ? -1 : 1
+      );
+      return pipeline;
+    })
+  );
   }    
 
   return (

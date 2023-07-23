@@ -73,8 +73,7 @@ import { ReportIssue } from '@backstage/plugin-techdocs-module-addons-contrib';
 /* ignore lint error for internal dependencies */
 /* eslint-disable */
 import { EntityKubernetesContent } from '@backstage/plugin-kubernetes';
-import { EntityTektonPipelinesContent } from 'backstage-plugin-tekton-pipelines-plugin';
-import { isTektonCiAvailable } from 'backstage-plugin-tekton-pipelines-plugin';
+import { EntityTektonPipelinesContent, isTektonCiAvailable } from '@jquad-group/backstage-plugin-tekton-pipelines-plugin';
 
 const techdocsContent = (
   <EntityTechdocsContent>

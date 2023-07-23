@@ -35,7 +35,7 @@ import { PermissionedRoute } from '@backstage/plugin-permission-react';
 import { catalogEntityCreatePermission } from '@backstage/plugin-catalog-common/alpha';
 /* ignore lint error for internal dependencies */
 /* eslint-disable */
-import { EntityTektonPipelinesContent } from 'backstage-plugin-tekton-pipelines-plugin';
+import { EntityTektonPipelinesContent } from '@jquad-group/backstage-plugin-tekton-pipelines-plugin';
 
 
 const app = createApp({
