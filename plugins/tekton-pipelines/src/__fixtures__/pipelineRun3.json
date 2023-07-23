@@ -32,11 +32,11 @@
                     },
                     {
                         "name": "repo-url",
-                        "value": "https://github.com/jquad-group/cloudland2023.git"
+                        "value": "https://github.com/xxx.git"
                     },
                     {
                         "name": "repo-url-alternate",
-                        "value": "https://github.com/jquad-group/cloudland2023.git"
+                        "value": "https://github.com/xxx.git"
                     },
                     {
                         "name": "gitrevision",
@@ -44,11 +44,11 @@
                     },
                     {
                         "name": "owner",
-                        "value": "jquad-group"
+                        "value": "xxx"
                     },
                     {
                         "name": "repository",
-                        "value": "cloudland2023"
+                        "value": "xxx"
                     },
                     {
                         "name": "statusUrl",
@@ -64,7 +64,7 @@
                     },
                     {
                         "name": "context",
-                        "value": "cloudland2023/tekton-ci"
+                        "value": "xxx/tekton-ci"
                     },
                     {
                         "name": "githubSecretName",
@@ -184,7 +184,7 @@
                                 },
                                 {
                                     "name": "context",
-                                    "value": "cloudland2023/tekton-ci"
+                                    "value": "xxx/tekton-ci"
                                 },
                                 {
                                     "name": "secretName",
@@ -230,7 +230,7 @@
                                 },
                                 {
                                     "name": "context",
-                                    "value": "cloudland2023/tekton-ci"
+                                    "value": "xxx/tekton-ci"
                                 },
                                 {
                                     "name": "secretName",
@@ -333,7 +333,7 @@
                             "type": "string"
                         },
                         {
-                            "default": "cloudland2023/tekton-ci",
+                            "default": "xxx/tekton-ci",
                             "name": "context",
                             "type": "string"
                         },
@@ -352,11 +352,11 @@
                             "params": [
                                 {
                                     "name": "url",
-                                    "value": "https://github.com/jquad-group/cloudland2023.git"
+                                    "value": "https://github.com/xxx.git"
                                 },
                                 {
                                     "name": "url-alternate",
-                                    "value": "https://github.com/jquad-group/cloudland2023.git"
+                                    "value": "https://github.com/xxx.git"
                                 },
                                 {
                                     "name": "revision",
@@ -415,7 +415,7 @@
                                 },
                                 {
                                     "name": "context",
-                                    "value": "cloudland2023/tekton-ci"
+                                    "value": "xxx/tekton-ci"
                                 },
                                 {
                                     "name": "secretName",
@@ -649,11 +649,11 @@
                 "params": [
                     {
                         "name": "url",
-                        "value": "https://github.com/jquad-group/cloudland2023.git"
+                        "value": "https://github.com/xxx.git"
                     },
                     {
                         "name": "url-alternate",
-                        "value": "https://github.com/jquad-group/cloudland2023.git"
+                        "value": "https://github.com/xxx.git"
                     },
                     {
                         "name": "revision",
@@ -847,7 +847,7 @@
                             "image": "gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.37.0",
                             "imagePullPolicy": "Always",
                             "name": "clone",
-                            "script": "# check if given alternate url starts with https\nURL=\"https://github.com/jquad-group/cloudland2023.git\"\nif  echo \"https://github.com/jquad-group/cloudland2023.git\" | grep -E \"^[[:blank:]]*http[s]{0,1}://.+$\" ; then\n  URL=\"https://github.com/jquad-group/cloudland2023.git\"\nfi\n\nif  echo \"$URL\" | grep -v -E \"^[[:blank:]]*http[s]{0,1}://.+$\" ; then\n  echo \"Provide a valid https URI, either in url or in url-alternate\"\nfi\n\nCHECKOUT_DIR=\"/workspace/repo/\"\n\n# Locks\nTARGETDIR=\"/workspace/repo\"\nLOCKFOLDER=$TARGETDIR/.lock\nPIDFILE=$LOCKFOLDER/.pid\nLOGFILE=log\ndeleteLock(){\n    pid=$(cat /tekton/results/lock-pid)\n    content=$(cat $PIDFILE)\n    if [ \"$pid\" == \"$content\" ];then\n        echo \"deleting lock\"\n        rm -rf $LOCKFOLDER;\n    fi\n}\n\n# For exit not applicable in this use case\n#trapfunctions\ntrap_exit() {\n    echo \"trapping exit signal\" \u003e\u00262\n    deleteLock\n}\ntrap_int() {\n    echo \"trapping int signal\" \u003e\u00262\n    deleteLock\n    exit 1\n}\ntrap_term() {\n    echo \"trapping term signal\" \u003e\u00262\n    deleteLock\n    exit 3\n}\n#\n#\ntrap trap_exit EXIT\ntrap trap_int  INT\ntrap trap_term  TERM\n\naquireLock(){\n  mkdir -pv $TARGETDIR\n  let i=1\n  while ! mkdir $LOCKFOLDER ; do\n      echo \"waiting\"\n      sleep $i\n      let i+=2;\n      if $i \u003e= 60 ; then\n        # don't wait indefinitely\n        exit 4\n      fi\n  done\n\n  PID=3c57c163-eb76-415e-aff1-d962349898fa\n  echo \"aquired Lock\"\n  echo $PID \u003e $PIDFILE\n  echo $PID \u003e /tekton/results/lock-pid\n  echo $PID\n  touch $LOCKFOLDER\n}\n\n\ncleandir() {\n  # Delete any existing contents of the repo directory if it exists.\n  #\n  # We don't just \"rm -rf $CHECKOUT_DIR\" because $CHECKOUT_DIR might be \"/\"\n  # or the root of a mounted volume.\n  if [[ -d \"$CHECKOUT_DIR\" ]] ; then\n    # Delete non-hidden files and directories\n    rm -rf \"$CHECKOUT_DIR\"/*\n    # Delete files and directories starting with . but excluding .. and .lock\n    rm -rf  $CHECKOUT_DIR/.[!.]*[!lock]*\n    # Delete files and directories starting with .. plus any other character\n    rm -rf \"$CHECKOUT_DIR\"/..?*\n  fi\n}\n\naquireLock\n\nif [[ \"true\" == \"true\" ]] ; then\n  cleandir\nfi\ntest -z \"\" || export HTTP_PROXY=\ntest -z \"\" || export HTTPS_PROXY=\ntest -z \"\" || export NO_PROXY=\n/ko-app/git-init \\\n  -url \"$URL\" \\\n  -revision \"main\" \\\n  -refspec \"+refs/tags/*:refs/tags/* +refs/heads/*:refs/heads/*\" \\\n  -path \"$CHECKOUT_DIR\" \\\n  -sslVerify=\"false\" \\\n  -submodules=\"false\" \\\n  -depth \"1\"\ncd \"$CHECKOUT_DIR\"\nRESULT_SHA=\"$(git rev-parse HEAD | tr -d '\\n')\"\n\nEXIT_CODE=\"$?\"\n# deleted by trap\n# deleteLock\nif [ \"$EXIT_CODE\" != 0 ]\nthen\n  exit $EXIT_CODE\nfi\n# Make sure we don't add a trailing newline to the result!\necho -n \"$RESULT_SHA\" \u003e /tekton/results/commit"
+                            "script": "# check if given alternate url starts with https\nURL=\"https://github.com/xxx.git\"\nif  echo \"https://github.com/xxx.git\" | grep -E \"^[[:blank:]]*http[s]{0,1}://.+$\" ; then\n  URL=\"https://github.com/xxx.git\"\nfi\n\nif  echo \"$URL\" | grep -v -E \"^[[:blank:]]*http[s]{0,1}://.+$\" ; then\n  echo \"Provide a valid https URI, either in url or in url-alternate\"\nfi\n\nCHECKOUT_DIR=\"/workspace/repo/\"\n\n# Locks\nTARGETDIR=\"/workspace/repo\"\nLOCKFOLDER=$TARGETDIR/.lock\nPIDFILE=$LOCKFOLDER/.pid\nLOGFILE=log\ndeleteLock(){\n    pid=$(cat /tekton/results/lock-pid)\n    content=$(cat $PIDFILE)\n    if [ \"$pid\" == \"$content\" ];then\n        echo \"deleting lock\"\n        rm -rf $LOCKFOLDER;\n    fi\n}\n\n# For exit not applicable in this use case\n#trapfunctions\ntrap_exit() {\n    echo \"trapping exit signal\" \u003e\u00262\n    deleteLock\n}\ntrap_int() {\n    echo \"trapping int signal\" \u003e\u00262\n    deleteLock\n    exit 1\n}\ntrap_term() {\n    echo \"trapping term signal\" \u003e\u00262\n    deleteLock\n    exit 3\n}\n#\n#\ntrap trap_exit EXIT\ntrap trap_int  INT\ntrap trap_term  TERM\n\naquireLock(){\n  mkdir -pv $TARGETDIR\n  let i=1\n  while ! mkdir $LOCKFOLDER ; do\n      echo \"waiting\"\n      sleep $i\n      let i+=2;\n      if $i \u003e= 60 ; then\n        # don't wait indefinitely\n        exit 4\n      fi\n  done\n\n  PID=3c57c163-eb76-415e-aff1-d962349898fa\n  echo \"aquired Lock\"\n  echo $PID \u003e $PIDFILE\n  echo $PID \u003e /tekton/results/lock-pid\n  echo $PID\n  touch $LOCKFOLDER\n}\n\n\ncleandir() {\n  # Delete any existing contents of the repo directory if it exists.\n  #\n  # We don't just \"rm -rf $CHECKOUT_DIR\" because $CHECKOUT_DIR might be \"/\"\n  # or the root of a mounted volume.\n  if [[ -d \"$CHECKOUT_DIR\" ]] ; then\n    # Delete non-hidden files and directories\n    rm -rf \"$CHECKOUT_DIR\"/*\n    # Delete files and directories starting with . but excluding .. and .lock\n    rm -rf  $CHECKOUT_DIR/.[!.]*[!lock]*\n    # Delete files and directories starting with .. plus any other character\n    rm -rf \"$CHECKOUT_DIR\"/..?*\n  fi\n}\n\naquireLock\n\nif [[ \"true\" == \"true\" ]] ; then\n  cleandir\nfi\ntest -z \"\" || export HTTP_PROXY=\ntest -z \"\" || export HTTPS_PROXY=\ntest -z \"\" || export NO_PROXY=\n/ko-app/git-init \\\n  -url \"$URL\" \\\n  -revision \"main\" \\\n  -refspec \"+refs/tags/*:refs/tags/* +refs/heads/*:refs/heads/*\" \\\n  -path \"$CHECKOUT_DIR\" \\\n  -sslVerify=\"false\" \\\n  -submodules=\"false\" \\\n  -depth \"1\"\ncd \"$CHECKOUT_DIR\"\nRESULT_SHA=\"$(git rev-parse HEAD | tr -d '\\n')\"\n\nEXIT_CODE=\"$?\"\n# deleted by trap\n# deleteLock\nif [ \"$EXIT_CODE\" != 0 ]\nthen\n  exit $EXIT_CODE\nfi\n# Make sure we don't add a trailing newline to the result!\necho -n \"$RESULT_SHA\" \u003e /tekton/results/commit"
                         }
                     ],
                     "workspaces": [
@@ -912,7 +912,7 @@
                     },
                     {
                         "name": "context",
-                        "value": "cloudland2023/tekton-ci"
+                        "value": "xxx/tekton-ci"
                     },
                     {
                         "name": "secretName",
@@ -997,7 +997,7 @@
                             "type": "string"
                         },
                         {
-                            "default": "cloudland2023/tekton-ci",
+                            "default": "xxx/tekton-ci",
                             "name": "context",
                             "type": "string"
                         },
@@ -1028,7 +1028,7 @@
                             "image": "alpine/curl:latest",
                             "imagePullPolicy": "Always",
                             "name": "set-github-commit-status",
-                            "script": "curl \\\n-i \\\n-X \\\nPOST \\\n-H \\\n\"Accept: application/vnd.github.v3+json\" \\\n-H \\\n\"Authorization: Bearer ${GITHUB_ACCESS_TOKEN}\" \\\nhttps://api.github.com \\\n-d \\\n\"{\\\"state\\\":\\\"pending\\\",\\\"target_url\\\":\\\"http://localhost:9097/#/pipelineruns\\\",\\\"description\\\":\\\"The build is currently running.\\\",\\\"context\\\":\\\"cloudland2023/tekton-ci\\\"}\""
+                            "script": "curl \\\n-i \\\n-X \\\nPOST \\\n-H \\\n\"Accept: application/vnd.github.v3+json\" \\\n-H \\\n\"Authorization: Bearer ${GITHUB_ACCESS_TOKEN}\" \\\nhttps://api.github.com \\\n-d \\\n\"{\\\"state\\\":\\\"pending\\\",\\\"target_url\\\":\\\"http://localhost:9097/#/pipelineruns\\\",\\\"description\\\":\\\"The build is currently running.\\\",\\\"context\\\":\\\"xxx/tekton-ci\\\"}\""
                         }
                     ]
                 }
@@ -1087,7 +1087,7 @@
                     },
                     {
                         "name": "context",
-                        "value": "cloudland2023/tekton-ci"
+                        "value": "xxx/tekton-ci"
                     },
                     {
                         "name": "secretName",
@@ -1165,7 +1165,7 @@
                             "type": "string"
                         },
                         {
-                            "default": "cloudland2023/tekton-ci",
+                            "default": "xxx/tekton-ci",
                             "name": "context",
                             "type": "string"
                         },
@@ -1196,7 +1196,7 @@
                             "image": "alpine/curl:latest",
                             "imagePullPolicy": "Always",
                             "name": "set-github-commit-status",
-                            "script": "curl \\\n-i \\\n-X \\\nPOST \\\n-H \\\n\"Accept: application/vnd.github.v3+json\" \\\n-H \\\n\"Authorization: Bearer ${GITHUB_ACCESS_TOKEN}\" \\\nhttps://api.github.com \\\n-d \\\n\"{\\\"state\\\":\\\"success\\\",\\\"target_url\\\":\\\"http://localhost:9097/#/pipelineruns\\\",\\\"description\\\":\\\"The build was successfull.\\\",\\\"context\\\":\\\"cloudland2023/tekton-ci\\\"}\""
+                            "script": "curl \\\n-i \\\n-X \\\nPOST \\\n-H \\\n\"Accept: application/vnd.github.v3+json\" \\\n-H \\\n\"Authorization: Bearer ${GITHUB_ACCESS_TOKEN}\" \\\nhttps://api.github.com \\\n-d \\\n\"{\\\"state\\\":\\\"success\\\",\\\"target_url\\\":\\\"http://localhost:9097/#/pipelineruns\\\",\\\"description\\\":\\\"The build was successfull.\\\",\\\"context\\\":\\\"xxx/tekton-ci\\\"}\""
                         }
                     ]
                 }

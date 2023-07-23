@@ -32,11 +32,11 @@
                     },
                     {
                         "name": "repo-url",
-                        "value": "https://github.com/jquad-group/cloudland2023.git"
+                        "value": "xxx"
                     },
                     {
                         "name": "repo-url-alternate",
-                        "value": "https://github.com/jquad-group/cloudland2023.git"
+                        "value": "xxx"
                     },
                     {
                         "name": "gitrevision",
@@ -44,11 +44,11 @@
                     },
                     {
                         "name": "owner",
-                        "value": "jquad-group"
+                        "value": "xxx"
                     },
                     {
                         "name": "repository",
-                        "value": "cloudland2023"
+                        "value": "xxx"
                     },
                     {
                         "name": "statusUrl",
@@ -64,7 +64,7 @@
                     },
                     {
                         "name": "context",
-                        "value": "cloudland2023/tekton-ci"
+                        "value": "xxx"
                     },
                     {
                         "name": "githubSecretName",
@@ -184,7 +184,7 @@
                                 },
                                 {
                                     "name": "context",
-                                    "value": "cloudland2023/tekton-ci"
+                                    "value": "xxx"
                                 },
                                 {
                                     "name": "secretName",
@@ -230,7 +230,7 @@
                                 },
                                 {
                                     "name": "context",
-                                    "value": "cloudland2023/tekton-ci"
+                                    "value": "xxx"
                                 },
                                 {
                                     "name": "secretName",
@@ -333,7 +333,7 @@
                             "type": "string"
                         },
                         {
-                            "default": "cloudland2023/tekton-ci",
+                            "default": "xxx",
                             "name": "context",
                             "type": "string"
                         },
@@ -352,11 +352,11 @@
                             "params": [
                                 {
                                     "name": "url",
-                                    "value": "https://github.com/jquad-group/cloudland2023.git"
+                                    "value": "xxx"
                                 },
                                 {
                                     "name": "url-alternate",
-                                    "value": "https://github.com/jquad-group/cloudland2023.git"
+                                    "value": "xxx"
                                 },
                                 {
                                     "name": "revision",
@@ -415,7 +415,7 @@
                                 },
                                 {
                                     "name": "context",
-                                    "value": "cloudland2023/tekton-ci"
+                                    "value": "xxx"
                                 },
                                 {
                                     "name": "secretName",
@@ -672,11 +672,11 @@
                 "params": [
                     {
                         "name": "url",
-                        "value": "https://github.com/jquad-group/cloudland2023.git"
+                        "value": "xxx"
                     },
                     {
                         "name": "url-alternate",
-                        "value": "https://github.com/jquad-group/cloudland2023.git"
+                        "value": "xxx"
                     },
                     {
                         "name": "revision",
@@ -952,7 +952,7 @@
                     },
                     {
                         "name": "context",
-                        "value": "cloudland2023/tekton-ci"
+                        "value": "xxx"
                     },
                     {
                         "name": "secretName",
@@ -1044,7 +1044,7 @@
                             "type": "string"
                         },
                         {
-                            "default": "cloudland2023/tekton-ci",
+                            "default": "xxx",
                             "name": "context",
                             "type": "string"
                         },
@@ -1075,7 +1075,7 @@
                             "image": "alpine/curl:latest",
                             "imagePullPolicy": "Always",
                             "name": "set-github-commit-status",
-                            "script": "curl \\\n-i \\\n-X \\\nPOST \\\n-H \\\n\"Accept: application/vnd.github.v3+json\" \\\n-H \\\n\"Authorization: Bearer ${GITHUB_ACCESS_TOKEN}\" \\\nhttps://api.github.com \\\n-d \\\n\"{\\\"state\\\":\\\"pending\\\",\\\"target_url\\\":\\\"http://localhost:9097/#/pipelineruns\\\",\\\"description\\\":\\\"The build is currently running.\\\",\\\"context\\\":\\\"cloudland2023/tekton-ci\\\"}\""
+                            "script": "curl \\\n-i \\\n-X \\\nPOST \\\n-H \\\n\"Accept: application/vnd.github.v3+json\" \\\n-H \\\n\"Authorization: Bearer ${GITHUB_ACCESS_TOKEN}\" \\\nhttps://api.github.com \\\n-d \\\n\"{\\\"state\\\":\\\"pending\\\",\\\"target_url\\\":\\\"http://localhost:9097/#/pipelineruns\\\",\\\"description\\\":\\\"The build is currently running.\\\",\\\"context\\\":\\\"xxx\\\"}\""
                         }
                     ]
                 }
@@ -1134,7 +1134,7 @@
                     },
                     {
                         "name": "context",
-                        "value": "cloudland2023/tekton-ci"
+                        "value": "xxx"
                     },
                     {
                         "name": "secretName",
@@ -1226,7 +1226,7 @@
                             "type": "string"
                         },
                         {
-                            "default": "cloudland2023/tekton-ci",
+                            "default": "xxx",
                             "name": "context",
                             "type": "string"
                         },
@@ -1257,7 +1257,7 @@
                             "image": "alpine/curl:latest",
                             "imagePullPolicy": "Always",
                             "name": "set-github-commit-status",
-                            "script": "curl \\\n-i \\\n-X \\\nPOST \\\n-H \\\n\"Accept: application/vnd.github.v3+json\" \\\n-H \\\n\"Authorization: Bearer ${GITHUB_ACCESS_TOKEN}\" \\\nhttps://api.github.com \\\n-d \\\n\"{\\\"state\\\":\\\"success\\\",\\\"target_url\\\":\\\"http://localhost:9097/#/pipelineruns\\\",\\\"description\\\":\\\"The build was successfull.\\\",\\\"context\\\":\\\"cloudland2023/tekton-ci\\\"}\""
+                            "script": "curl \\\n-i \\\n-X \\\nPOST \\\n-H \\\n\"Accept: application/vnd.github.v3+json\" \\\n-H \\\n\"Authorization: Bearer ${GITHUB_ACCESS_TOKEN}\" \\\nhttps://api.github.com \\\n-d \\\n\"{\\\"state\\\":\\\"success\\\",\\\"target_url\\\":\\\"http://localhost:9097/#/pipelineruns\\\",\\\"description\\\":\\\"The build was successfull.\\\",\\\"context\\\":\\\"xxx\\\"}\""
                         }
                     ]
                 }
