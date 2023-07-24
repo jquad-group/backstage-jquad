@@ -11,9 +11,7 @@ import { TaskRunRow } from '../TaskRunRow';
 
 
 function StatusComponent(props: { conditions: [Condition]; }): JSX.Element {
-  if ((props.conditions === undefined) || (props.conditions.length <= 0)) {
-    return <StatusPending />;
-  } else 
+  if (props.conditions !== undefined) {
     if (props.conditions[0].reason === 'Created') {
       return <StatusPending />;
     } else
@@ -31,10 +29,13 @@ function StatusComponent(props: { conditions: [Condition]; }): JSX.Element {
             } else
               if (props.conditions[0].reason === 'Failed') {
                 return <StatusError />;
-              }
-  if (props.conditions[0].reason === 'Error') {
-    return <StatusError />;
-  }
+              } else 
+                if (props.conditions[0].reason === 'Error') {
+                  return <StatusError />;
+                }
+  } else {
+    return <StatusPending />;
+  }   
   return <StatusPending />;
 
 }
@@ -65,8 +66,14 @@ export function CollapsibleTableRow(props: { clusterName: string, pipelineRun: P
         <TableCell component="th" scope="row">
           {pipelineRun.metadata.name}
         </TableCell>
-        <TableCell align="right">{pipelineRun.metadata.namespace}</TableCell>
-        <TableCell align="right"><StatusComponent conditions={pipelineRun.status.conditions} />{pipelineRun.status.conditions[0].reason}</TableCell>
+        <TableCell align="right">{pipelineRun.metadata.namespace}</TableCell>        
+        { pipelineRun.status.conditions !== undefined && (
+          <TableCell align="right">
+          <StatusComponent conditions={pipelineRun.status.conditions} />{pipelineRun.status.conditions[0].reason}</TableCell>
+        )}
+        { pipelineRun.status.conditions === undefined && (
+        <TableCell align="right"><StatusComponent conditions={pipelineRun.status.conditions} />Pending</TableCell>
+        )}        
         <TableCell align="right">{pipelineRun.status.startTime}</TableCell>
         <TableCell align="right">{pipelineRun.status.completionTime}</TableCell>
         <TableCell align="right"><a href={pipelineRun.pipelineRunDashboardUrl} target="_blank">Link</a></TableCell>

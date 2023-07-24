@@ -11,14 +11,14 @@ export function TaskRunRow(props: { clusterName: string, taskRun: TaskRun }) {
   
   return (
     <Fragment>
-      <TableRow key={taskRun.metadata.name} style={{border: "1px solid rgb(0, 0, 0)"}}>
-      {taskRun.status.steps !== undefined && (
+      <TableRow key={taskRun.metadata.name} style={{border: "1px solid rgb(0, 0, 0)"}}>      
+      {taskRun.status !== undefined && taskRun.status.steps !== undefined && (
         <TableCell align="left" rowSpan={taskRun.status.steps.length + 1}>
           {taskRun.metadata.name}
         </TableCell>
         )}      
       </TableRow>      
-      {taskRun.status.steps !== undefined &&
+      {taskRun.status !== undefined && taskRun.status.steps !== undefined &&
         taskRun.status.steps.map((step) => (
           <StepRow key={step.name} clusterName={clusterName} namespace={taskRun.metadata.namespace} podName={taskRun.status.podName} step={step}/>
         ))}
