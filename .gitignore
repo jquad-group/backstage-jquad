@@ -1,7 +1,3 @@
-#json-sever
-db.json
-routes.json
-
 # macOS
 .DS_Store
 
@@ -18,6 +14,15 @@ coverage
 
 # Dependencies
 node_modules/
+
+# Yarn 3 files
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
 
 # Node version directives
 .nvmrc
@@ -41,3 +46,9 @@ site
 
 # Sensitive credentials
 *-credentials.yaml
+
+# vscode database functionality support files
+*.session.sql
+
+# E2E test reports
+e2e-test-report/

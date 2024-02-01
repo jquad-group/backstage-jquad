@@ -9,10 +9,10 @@ import {
 
 /* ignore lint error for internal dependencies */
 /* eslint-disable */
-import { Box, Grid } from '@material-ui/core';
+import { Box, FormControl, Grid, InputLabel, MenuItem, Select } from '@material-ui/core';
 import { useKubernetesObjects} from '@backstage/plugin-kubernetes';
 import { FetchResponse } from '@backstage/plugin-kubernetes-common';
-import { PipelineRun, Cluster, TaskRun } from '../../types';
+import { PipelineRun, Cluster } from '../../types';
 import { CollapsibleTable } from '../CollapsibleTable';
 import React, { useEffect, useState } from 'react';
 
@@ -32,6 +32,9 @@ export const TektonDashboardComponent = ({
   );
 
   const [loading, setLoading] = useState(true); // State to manage loading state
+  const [selectedCluster, setSelectedCluster] = useState<string | null>(null);
+
+  //const pipelineRunUrlTemplate: string = entity?.metadata.annotations?.["tektonci/dashboard"];
 
   useEffect(() => {
     // This useEffect will run whenever kubernetesObjects changes
@@ -61,28 +64,7 @@ export const TektonDashboardComponent = ({
 
       // cast objects to PipelineRun
       const flattenedPipelineRuns = flattenedPipelineRunsAny as PipelineRun[];
-          
-      //let taskRunsCRs = customResources?.filter((r)=> r.resources.some(isTaskRun) );  
-      let taskRunsCRs = customResources?.map((r) => {
-        return {...r, resources: r.resources.filter(isTaskRun)}});
-  
-      const flattenedTaskRunsAny = taskRunsCRs?.flatMap(({ resources }) =>
-        [...resources]
-      ) ?? [];
-
-      const flattenedTaskRuns = flattenedTaskRunsAny as TaskRun[];
-      for (const pipelineRun of flattenedPipelineRuns) {
-        const taskRunsForPipelineRun: Array<TaskRun> = [];
-        for (const taskRun of flattenedTaskRuns) {
-          
-          const pipelineRunNameLabel = taskRun.metadata.labels['tekton.dev/pipelineRun'];
-          if ((String(pipelineRunNameLabel) === pipelineRun.metadata.name) && (taskRun.apiVersion === pipelineRun.apiVersion)) {
-            taskRunsForPipelineRun.push(taskRun)
-          }        
-        }
-        pipelineRun.taskRuns = taskRunsForPipelineRun
-      }
-          
+                    
       cluster.pipelineRuns = flattenedPipelineRuns;
       clusters.push(cluster);
     }
@@ -90,53 +72,90 @@ export const TektonDashboardComponent = ({
     clusters.map((cluster) => 
     cluster.pipelineRuns.sort((pipelineA, pipelineB) =>
       pipelineA.status.startTime > pipelineB.status.startTime ? -1 : 1
-    ).map((pipeline) => {
-      // Sort TaskRun objects for each PipelineRun
-      pipeline.taskRuns.sort((taskRunA, taskRunB) =>
-        taskRunA.status.startTime < taskRunB.status.startTime ? -1 : 1
-      );
-      return pipeline;
-    })
-  );
+    ));
+
+    // set dashboardUrl      
+    clusters.forEach((cluster) => 
+      cluster.pipelineRuns.forEach((pipelineRun) => {
+        const dashboardAnnotation = "tektonci." + cluster.name + "/dashboard";
+        if (entity.metadata.annotations?.[dashboardAnnotation] !== undefined) {
+          const dashboardUrl = entity.metadata.annotations[dashboardAnnotation] ?? "";
+          const replacedUrl = dashboardUrl
+          .replace(/\$namespace/g, encodeURIComponent(pipelineRun.metadata.namespace))
+          .replace(/\$pipelinerun/g, encodeURIComponent(pipelineRun.metadata.name));          
+          pipelineRun.pipelineRunDashboardUrl = replacedUrl;
+        }      
+      })
+    );    
+  
   }    
+
+  const handleClusterChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+    setSelectedCluster(event.target.value as string);
+  };
 
   return (
     <Page themeId="tool">
-      <Content>
-      {loading ? ( // Display progress bar while loading
-          <div className="progress-bar-container">
-            <Progress /> 
-          </div>
-        ) : (
+    <Content>
+      {loading ? (
+        <div className="progress-bar-container">
+          <Progress />
+        </div>
+      ) : (
         kubernetesObjects?.items !== undefined && clusters?.length > 0 && (
-          clusters.map((cluster) => 
-            <Grid container spacing={3} direction="column">
-            <ContentHeader title={cluster.name} textAlign="center"></ContentHeader>
-            { cluster.pipelineRuns !== undefined && cluster.pipelineRuns !== null && cluster.pipelineRuns.length > 0 && (
+          <Grid container spacing={3} direction="column">
             <Grid item>
-              <CollapsibleTable clusterName={cluster.name} pipelineruns={cluster.pipelineRuns} />
-            </Grid>           
+              <FormControl fullWidth>
+                <InputLabel id="cluster-select-label">Select Cluster</InputLabel>
+                <Select
+                  labelId="cluster-select-label"
+                  id="cluster-select"
+                  value={selectedCluster || ''}
+                  onChange={handleClusterChange}
+                >
+                  {clusters.map((cluster) => (
+                    <MenuItem key={cluster.name} value={cluster.name}>
+                      {cluster.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            {selectedCluster && (
+              <Grid item>
+                <ContentHeader title={selectedCluster} textAlign="center"></ContentHeader>
+                {clusters
+                  .filter((cluster) => cluster.name === selectedCluster)
+                  .map((cluster) =>
+                    cluster.pipelineRuns !== undefined &&
+                    cluster.pipelineRuns !== null &&
+                    cluster.pipelineRuns.length > 0 ? (
+                      <CollapsibleTable
+                        key={selectedCluster}
+                        clusterName={cluster.name}
+                        pipelineruns={cluster.pipelineRuns}
+                      />
+                    ) : (
+                      <Box textAlign="center" fontSize="20px">
+                        No pipeline runs for the selected cluster.
+                      </Box>
+                    )
+                  )}
+              </Grid>
             )}
-            { cluster.error !== undefined && (
-            <Grid item>
-              <Box textAlign="center" fontSize="20px">{cluster.error}</Box>
-            </Grid>                      
-            )}
-            </Grid>         
-          )
-        ) 
+          </Grid>
+        )
       )}
-      {error !== undefined && 
+      {error !== undefined && (
         <Grid container spacing={3} direction="column">
           <Grid item>
-            <ResponseErrorPanel error={(new Error(error))} />;
+            <ResponseErrorPanel error={new Error(error)} />;
           </Grid>
         </Grid>
-      }
-      </Content>
-    </Page>
-  );
-
+      )}
+    </Content>
+  </Page>
+);
 };
 
 function isCustomResource(n:FetchResponse) {
@@ -151,14 +170,6 @@ function isCustomResource(n:FetchResponse) {
 
 function isPipelineRun(n:any): n is PipelineRun {
   if (n.kind === 'PipelineRun') {
-    return true;
-  } else {
-    return false;
-  }
-}
-
-function isTaskRun(n:any): n is TaskRun {
-  if (n.kind === 'TaskRun') {
     return true;
   } else {
     return false;

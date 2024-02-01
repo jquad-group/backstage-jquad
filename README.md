@@ -59,9 +59,6 @@ kubernetes:
             - group: 'tekton.dev'
               apiVersion: 'v1'
               plural: 'pipelineruns'              
-            - group: 'tekton.dev'
-              apiVersion: 'v1'
-              plural: 'taskruns'
 ```
 
 # Adding Tekton Frontend Plugin to Your Backstage App
@@ -69,7 +66,7 @@ kubernetes:
 To incorporate the Tekton Pipelines plugin into your custom Backstage app, follow these steps:
 
 1. Navigate to `./packages/app`, and install the frontend plugin using yarn:
-`yarn add @jquad-group/backstage-plugin-tekton-pipelines-plugin@1.0.1`
+`yarn add @jquad-group/backstage-plugin-tekton-pipelines-plugin@1.1.0-beta.1`
 
 2. In your Backstage app, navigate to the file `./packages/app/src/components/catalog/EntityPage.tsx` and add the following code:
 
@@ -133,6 +130,44 @@ metadata:
   labels:     
     app: microservice
 ```
+
+You can also configure the tekton dashboard url for each cluster by adding the annotation `tektonci.[clusterName]/dashboard` to the catalog info. 
+For example, having a kubernetes configuration for the clusters `rancher` and `k3d`:
+
+```
+kubernetes:
+    ...
+    - type: 'config'
+      clusters:
+        - url: http://host.docker.internal:21301
+          name: k3d
+          ...
+        - url: https://rancher.example.com:6443
+          name: rancher
+          ...
+```
+
+one can configure a separate url for `rancher` and `k3d` for the tekton dashboard like this:
+
+```
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  namespace: dev
+  annotations:
+    backstage.io/kubernetes-label-selector: 'app=microservice'
+    tektonci/enabled: "true"
+    tektoncd.k3d/dashboard: http://localhost:8080/tekton/$namespace/$pipelinerun
+    tektoncd.rancher/dashboard: https://rancher.example.com:8080/tekton/$namespace/$pipelinerun
+  name: microservice
+  description: Microservice
+spec:
+  type: service
+  lifecycle: production
+  owner: user:guest
+```
+
+In the above example `$namespace` and `$pipelinerun` are variables, that are automatically interpolated on runtime from the plugin. 
 
 # Developing the Tekton Pipelines Plugin Locally
 

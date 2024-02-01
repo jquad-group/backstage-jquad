@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate, Route } from 'react-router';
+import { Navigate, Route } from 'react-router-dom';
 import { apiDocsPlugin, ApiExplorerPage } from '@backstage/plugin-api-docs';
 import {
   CatalogEntityPage,
@@ -29,14 +29,14 @@ import { Root } from './components/Root';
 
 import { AlertDisplay, OAuthRequestDialog } from '@backstage/core-components';
 import { createApp } from '@backstage/app-defaults';
-import { FlatRoutes } from '@backstage/core-app-api';
+import { AppRouter, FlatRoutes } from '@backstage/core-app-api';
 import { CatalogGraphPage } from '@backstage/plugin-catalog-graph';
-import { PermissionedRoute } from '@backstage/plugin-permission-react';
+import { RequirePermission } from '@backstage/plugin-permission-react';
 import { catalogEntityCreatePermission } from '@backstage/plugin-catalog-common/alpha';
 /* ignore lint error for internal dependencies */
 /* eslint-disable */
 import { EntityTektonPipelinesContent } from '@jquad-group/backstage-plugin-tekton-pipelines-plugin';
-
+import { TestPluginPage } from '@internal/plugin-test-plugin';
 
 const app = createApp({
   apis,
@@ -44,12 +44,14 @@ const app = createApp({
     bind(catalogPlugin.externalRoutes, {
       createComponent: scaffolderPlugin.routes.root,
       viewTechDoc: techdocsPlugin.routes.docRoot,
+      createFromTemplate: scaffolderPlugin.routes.selectedTemplate,
     });
     bind(apiDocsPlugin.externalRoutes, {
       registerApi: catalogImportPlugin.routes.importPage,
     });
     bind(scaffolderPlugin.externalRoutes, {
       registerComponent: catalogImportPlugin.routes.importPage,
+      viewTechDoc: techdocsPlugin.routes.docRoot,
     });
     bind(orgPlugin.externalRoutes, {
       catalogIndex: catalogPlugin.routes.catalogIndex,
@@ -57,12 +59,9 @@ const app = createApp({
   },
 });
 
-const AppProvider = app.getProvider();
-const AppRouter = app.getRouter();
-
 const routes = (
   <FlatRoutes>
-    <Navigate key="/" to="catalog" />
+    <Route path="/" element={<Navigate to="catalog" />} />
     <Route path="/catalog" element={<CatalogIndexPage />} />
     <Route
       path="/catalog/:namespace/:kind/:name"
@@ -85,10 +84,13 @@ const routes = (
       path="/tech-radar"
       element={<TechRadarPage width={1500} height={800} />}
     />
-    <PermissionedRoute
+    <Route
       path="/catalog-import"
-      permission={catalogEntityCreatePermission}
-      element={<CatalogImportPage />}
+      element={
+        <RequirePermission permission={catalogEntityCreatePermission}>
+          <CatalogImportPage />
+        </RequirePermission>
+      }
     />
     <Route path="/search" element={<SearchPage />}>
       {searchPage}
@@ -96,17 +98,16 @@ const routes = (
     <Route path="/settings" element={<UserSettingsPage />} />
     <Route path="/catalog-graph" element={<CatalogGraphPage />} />
     <Route path="/tekton-pipelines" element={<EntityTektonPipelinesContent />} />
+    <Route path="/test-plugin" element={<TestPluginPage />} />
   </FlatRoutes>
 );
 
-const App = () => (
-  <AppProvider>
+export default app.createRoot(
+  <>
     <AlertDisplay />
     <OAuthRequestDialog />
     <AppRouter>
       <Root>{routes}</Root>
     </AppRouter>
-  </AppProvider>
+  </>,
 );
-
-export default App;
