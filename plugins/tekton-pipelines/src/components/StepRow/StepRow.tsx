@@ -53,12 +53,10 @@ export function StepRow(props: { clusterName: string, namespace: string, podName
       clusterName: clusterName,
       path: url,
     }).then(async (res) => {
-      data.data = await res.text();
+      setData({...data, data: await res.text()});      
       step.log = data.data;
-    });
-    
-    setData(data);
-    setIsLoading(false);
+      setIsLoading(false);
+    });    
     
   };
   

@@ -2,13 +2,11 @@ import React from 'react';
 import { StatusError, StatusOK, StatusPending, StatusRunning, StatusWarning } from '@backstage/core-components';
 // eslint-disable-next-line  no-restricted-imports
 import { KeyboardArrowDown, KeyboardArrowUp } from '@material-ui/icons';
-import { Table, TableBody, TableRow, TableCell, IconButton, Collapse, TableHead, CircularProgress } from '@material-ui/core';
+import { Table, TableBody, TableRow, TableCell, IconButton, Collapse, TableHead } from '@material-ui/core';
 /* ignore lint error for internal dependencies */
 /* eslint-disable */
-import { Condition, PipelineRun, TaskRun } from '../../types';
+import { Condition, PipelineRun } from '../../types';
 import { TaskRunRow } from '../TaskRunRow';
-import { kubernetesApiRef } from '@backstage/plugin-kubernetes';
-import { useApi } from '@backstage/core-plugin-api';
 /* eslint-enable */
 
 
@@ -44,64 +42,26 @@ function StatusComponent(props: { conditions: [Condition]; }): JSX.Element {
  
 export function CollapsibleTableRow(props: { clusterName: string, pipelineRun: PipelineRun }) {
   const { clusterName, pipelineRun } = props;
-  const [open, setOpen] = React.useState(false);
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [taskRuns, setTaskRuns] = React.useState<TaskRun[]>([]);
-  
-  const k8s = useApi(kubernetesApiRef);
+  const [open, setOpen] = React.useState(false);  
 
-  async function fetchTaskRuns() {
-    setIsLoading(true);
-    const url = `/apis/${pipelineRun.apiVersion}/namespaces/${pipelineRun.metadata.namespace}/taskruns?labelSelector=tekton.dev/pipelineRun%3D${pipelineRun.metadata.name}&limit=100`;
+  if (!pipelineRun || !pipelineRun.status) {
+    return null; // or handle this case accordingly
+  }
 
-    try {
-      const response = await k8s.proxy({
-        clusterName: clusterName,
-        path: url,
-      });
+  if (pipelineRun.status.completionTime === undefined) {
+    pipelineRun.status.completionTime = "";
+  }
 
-      if (response && response.status === 200) {
-        const responseData = await response.json();
-        if (responseData && responseData.items) {          
-          setTaskRuns(responseData.items);
-        }
-      } else {
-        // console.error('Error fetching data:', response);
-      }
-    } catch (error) {
-      // console.error('Error fetching data:', error);
-    } finally {
-      setIsLoading(false);
-      setOpen(!open); // Toggle the 'open' state
-    }
-  };
-
-  /*
-  useEffect(() => {
-    // This useEffect will run whenever kubernetesObjects changes
-    // If kubernetesObjects is not undefined or null, setLoading to false
-    if (taskRuns !== undefined && taskRuns !== null) {
-      setIsLoading(false);
-    }
-  }, [taskRuns]);
-  */
-  
-
-  const handleClick = async () => {
-    setOpen(!open); // Toggle the 'open' state
-    fetchTaskRuns();
-  };
-  
   return (
     <React.Fragment>
       <TableRow>
-        <TableCell>        
+        <TableCell>
           <IconButton
             aria-label="expand row"
             size="small"
-            onClick={handleClick}
-          >            
-            {isLoading ? <CircularProgress size={24} /> : (open ? <KeyboardArrowUp /> : <KeyboardArrowDown />)}
+            onClick={() => setOpen(!open)}
+          >
+            {open ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
           </IconButton>
         </TableCell>
         <TableCell component="th" scope="row">
@@ -132,10 +92,11 @@ export function CollapsibleTableRow(props: { clusterName: string, pipelineRun: P
                 <TableCell>Log</TableCell>
               </TableRow>
             </TableHead>
-            <TableBody>            
-              {taskRuns && taskRuns.map((taskRunRow) => (
-                <TaskRunRow key={taskRunRow.metadata.name} clusterName={clusterName} taskRun={taskRunRow}/>
-              ))}            
+            <TableBody>
+              {pipelineRun.taskRuns !== undefined &&
+                pipelineRun.taskRuns.map((taskRunRow) => (
+                  <TaskRunRow key={taskRunRow.metadata.name} clusterName={clusterName} taskRun={taskRunRow}/>
+                ))}
             </TableBody>
           </Table>
         </Collapse>
@@ -143,5 +104,3 @@ export function CollapsibleTableRow(props: { clusterName: string, pipelineRun: P
     </React.Fragment>
   );
 }
-
-
