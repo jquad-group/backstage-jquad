@@ -74,7 +74,7 @@ To incorporate the Tekton Pipelines plugin into your custom Backstage app, follo
 2. In your Backstage app, navigate to the file `./packages/app/src/components/catalog/EntityPage.tsx` and add the following code:
 
 ```
-import { EntityTektonPipelinesContent, isTektonCiAvailable } from '@jquad-group/plugin-tekton-pipelines';
+import { EntityTektonPipelinesContent, isTektonCiAvailable } from '@jquad-group/backstage-plugin-tekton-pipelines-plugin';
 // ...
 const serviceEntityPage = (
     // ...
