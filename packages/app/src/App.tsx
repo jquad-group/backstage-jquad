@@ -36,7 +36,6 @@ import { catalogEntityCreatePermission } from '@backstage/plugin-catalog-common/
 /* ignore lint error for internal dependencies */
 /* eslint-disable */
 import { EntityTektonPipelinesContent } from '@jquad-group/backstage-plugin-tekton-pipelines-plugin';
-import { TestPluginPage } from '@internal/plugin-test-plugin';
 
 const app = createApp({
   apis,
@@ -98,7 +97,6 @@ const routes = (
     <Route path="/settings" element={<UserSettingsPage />} />
     <Route path="/catalog-graph" element={<CatalogGraphPage />} />
     <Route path="/tekton-pipelines" element={<EntityTektonPipelinesContent />} />
-    <Route path="/test-plugin" element={<TestPluginPage />} />
   </FlatRoutes>
 );
 

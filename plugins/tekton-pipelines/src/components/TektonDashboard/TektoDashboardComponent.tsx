@@ -11,7 +11,6 @@ import {
 /* eslint-disable */
 import { Box, FormControl, Grid, InputLabel, MenuItem, Select } from '@material-ui/core';
 import { KubernetesApi, kubernetesApiRef, useKubernetesObjects } from '@backstage/plugin-kubernetes';
-import { FetchResponse } from '@backstage/plugin-kubernetes-common';
 import { PipelineRun, Cluster, TaskRun } from '../../types';
 import { CollapsibleTable } from '../CollapsibleTable';
 import React, { useEffect, useState } from 'react';
@@ -65,9 +64,9 @@ const fetchClusterNames = async (k8s: KubernetesApi): Promise<Array<Cluster>> =>
   return clusters;   
 };
 
-const getAllTaskRuns = async (clusterName: string, labelSelector: string, k8s: KubernetesApi): Promise<Array<TaskRun>> => {
+const getTaskRunsForCluster = async (clusterName: string, tektonApi: string, labelSelector: string, k8s: KubernetesApi): Promise<Array<TaskRun>> => {
 
-  const url = `/apis/tekton.dev/v1/taskruns?labelSelector=${labelSelector}&limit=500`
+  const url = `/apis/tekton.dev/${tektonApi}/taskruns?labelSelector=${labelSelector}&limit=500`
 
   try {
     const response = await k8s.proxy({
@@ -91,6 +90,32 @@ const getAllTaskRuns = async (clusterName: string, labelSelector: string, k8s: K
   }
 };
 
+const getPipelineRunsForCluster = async (clusterName: string, tektonApi: string, labelSelector: string, k8s: KubernetesApi): Promise<Array<PipelineRun>> => {
+
+  const url = `/apis/tekton.dev/${tektonApi}/pipelineruns?labelSelector=${labelSelector}&limit=500`
+
+  try {
+    const response = await k8s.proxy({
+      clusterName: clusterName,
+      path: url,
+    });
+
+    if (response && response.status === 200) {
+      const responseData = await response.json();
+      if (responseData && responseData.items) {
+        const pipelineRuns: Array<PipelineRun> = responseData.items;
+        return pipelineRuns;
+      }
+    }
+
+    return []
+
+  } catch (error) {
+    console.error(`Error fetching PipelineRuns:`, error);
+    return []
+  }
+};
+
 
 export const TektonDashboardComponent = ({
   entity,
@@ -104,6 +129,7 @@ export const TektonDashboardComponent = ({
   const [loading, setLoading] = useState(true); // State to manage loading state
   const [selectedCluster, setSelectedCluster] = useState<string | null>(null);
   const [clusters, setClusters] = useState<Array<Cluster>>([]);
+  const [fetchingData, setFetchingData] = useState(false); // State to manage fetching data state
   const k8s = useApi(kubernetesApiRef);
   
   useEffect(() => {
@@ -118,92 +144,137 @@ export const TektonDashboardComponent = ({
     };
 
     fetchClusters();
-  }, [k8s]);
+  }, []);
 
   useEffect(() => {
     // This useEffect will run whenever kubernetesObjects changes
-    // If kubernetesObjects is not undefined or null, setLoading to false
-    if (kubernetesObjects !== undefined && kubernetesObjects !== null) {
-      const fetchTaskRuns = async () => {
+    const loadedCluster = kubernetesObjects?.items.find(obj => obj.cluster.name === selectedCluster);
+    if (loadedCluster === undefined && selectedCluster) {
+      setFetchingData(true);
+    }    
+    if (loadedCluster !== undefined && selectedCluster !== null) {
+      const fetchTaskRuns = async () => {                
+        // Create a copy of the clusters array
+        const updatedClusters = [...clusters];
 
-        let updatedClusters: Array<Cluster> = [];
+        // Find the selected cluster in the array
+        const selectedClusterIndex = updatedClusters.findIndex(cluster => cluster.name === selectedCluster);
 
-        for (const cluster of clusters) {
-          // Find the KubernetesObject that corresponds to the current cluster
-          const kubernetesObject = kubernetesObjects.items.find(
-            obj => obj.cluster.name === cluster.name,
-          );
+        if (loadedCluster.errors.length === 0) {            
+          // create tmpCluster
+          const tmpCluster = {} as Cluster;
+          tmpCluster.name = loadedCluster.cluster.name;
 
-          if (kubernetesObject) {
-            // get only custom resource      
-            let customResources = kubernetesObject?.resources.filter(isCustomResource);
-
-            // get pipelineruns    
-            let pipelineRunsCRs = customResources?.map((r) => {
-              return { ...r, resources: r.resources.filter(isPipelineRun) }
-            });
-
-            // flatten object
-            const flattenedPipelineRunsAny = pipelineRunsCRs?.flatMap(({ resources }) =>
-              [...resources]
-            ) ?? [];
-
-            // cast objects to PipelineRun
-            const flattenedPipelineRuns = flattenedPipelineRunsAny as PipelineRun[];
-            cluster.pipelineRuns = flattenedPipelineRuns;
-
-            // get all taskruns
-            let allTaskRuns: Array<TaskRun> = [];
+          // get all PipelineRuns   
+          let pipelineRunsPromise: Promise<PipelineRun[]>;
+          if (entity?.metadata?.annotations?.["tektonci/api"]) {
+              const tektonApi = entity?.metadata?.annotations?.["tektonci/api"];
+              if (entity?.metadata?.annotations?.["backstage.io/kubernetes-label-selector"]) {
+                pipelineRunsPromise = getPipelineRunsForCluster(tmpCluster.name, tektonApi, entity.metadata.annotations["backstage.io/kubernetes-label-selector"], k8s);
+              } else if (entity?.metadata?.annotations?.["backstage.io/kubernetes-namespace"]) {
+                pipelineRunsPromise = getPipelineRunsForCluster(tmpCluster.name, tektonApi, entity.metadata.annotations["backstage.io/kubernetes-namespace"], k8s);
+              } else {
+                pipelineRunsPromise = getPipelineRunsForCluster(tmpCluster.name, tektonApi, "", k8s);
+              }         
+          } else {
+            const tektonApi = "v1";
             if (entity?.metadata?.annotations?.["backstage.io/kubernetes-label-selector"]) {
-              allTaskRuns = await getAllTaskRuns(cluster.name, entity.metadata.annotations["backstage.io/kubernetes-label-selector"], k8s);
+              pipelineRunsPromise = getPipelineRunsForCluster(tmpCluster.name, tektonApi, entity.metadata.annotations["backstage.io/kubernetes-label-selector"], k8s);
             } else if (entity?.metadata?.annotations?.["backstage.io/kubernetes-namespace"]) {
-              allTaskRuns = await getAllTaskRuns(cluster.name, entity.metadata.annotations["backstage.io/kubernetes-namespace"], k8s);
+              pipelineRunsPromise = getPipelineRunsForCluster(tmpCluster.name, tektonApi, entity.metadata.annotations["backstage.io/kubernetes-namespace"], k8s);
             } else {
-              allTaskRuns = await getAllTaskRuns(cluster.name, "", k8s);
+              pipelineRunsPromise = getPipelineRunsForCluster(tmpCluster.name, tektonApi, "", k8s);
             }
+          }          
 
-            for (const pipelineRun of flattenedPipelineRuns) {
-              const dashboardAnnotation = "tektonci." + cluster.name + "/dashboard";
-              // set dashboardUrl      
-              if (entity.metadata.annotations?.[dashboardAnnotation] !== undefined) {
-                const dashboardUrl = entity.metadata.annotations[dashboardAnnotation] ?? "";
-                const replacedUrl = dashboardUrl
-                  .replace(/\$namespace/g, encodeURIComponent(pipelineRun.metadata.namespace))
-                  .replace(/\$pipelinerun/g, encodeURIComponent(pipelineRun.metadata.name));
-                pipelineRun.pipelineRunDashboardUrl = replacedUrl;
-              }
 
-              const taskRunsForPipelineRun: Array<TaskRun> = [];
-              for (const taskRun of allTaskRuns) {
-                const pipelineRunNameLabel = taskRun.metadata.labels['tekton.dev/pipelineRun'];
-                if ((String(pipelineRunNameLabel) === pipelineRun.metadata.name) && (taskRun.apiVersion === pipelineRun.apiVersion)) {
-                  taskRunsForPipelineRun.push(taskRun)
-                }
-              }
-              // sort taskRunsForPipelineRun based on start time if needed
-              taskRunsForPipelineRun.sort((taskRunA, taskRunB) =>
-                (taskRunA?.status?.startTime ?? 0) > (taskRunB?.status?.startTime ?? 0) ? -1 : 1
-              );
-              pipelineRun.taskRuns = taskRunsForPipelineRun;
+          // get all taskruns
+          let taskRunsPromise: Promise<TaskRun[]>;
+          if (entity?.metadata?.annotations?.["tektonci/api"]) {
+            const tektonApi = entity?.metadata?.annotations?.["tektonci/api"];
+            if (entity?.metadata?.annotations?.["backstage.io/kubernetes-label-selector"]) {
+              taskRunsPromise = getTaskRunsForCluster(tmpCluster.name, tektonApi, entity.metadata.annotations["backstage.io/kubernetes-label-selector"], k8s);
+            } else if (entity?.metadata?.annotations?.["backstage.io/kubernetes-namespace"]) {
+              taskRunsPromise = getTaskRunsForCluster(tmpCluster.name, tektonApi, entity.metadata.annotations["backstage.io/kubernetes-namespace"], k8s);
+            } else {
+              taskRunsPromise = getTaskRunsForCluster(tmpCluster.name, tektonApi, "", k8s);
             }
-
-            // sort           
-            cluster.pipelineRuns.sort((pipelineA, pipelineB) =>
-              (pipelineA?.status?.startTime ?? 0) > (pipelineB?.status?.startTime ?? 0) ? -1 : 1
-            );
-
-            updatedClusters.push(cluster);
+          } else {
+            const tektonApi = "v1";
+            if (entity?.metadata?.annotations?.["backstage.io/kubernetes-label-selector"]) {
+              taskRunsPromise = getTaskRunsForCluster(tmpCluster.name, tektonApi, entity.metadata.annotations["backstage.io/kubernetes-label-selector"], k8s);
+            } else if (entity?.metadata?.annotations?.["backstage.io/kubernetes-namespace"]) {
+              taskRunsPromise = getTaskRunsForCluster(tmpCluster.name, tektonApi, entity.metadata.annotations["backstage.io/kubernetes-namespace"], k8s);
+            } else {
+              taskRunsPromise = getTaskRunsForCluster(tmpCluster.name, tektonApi, "", k8s);
+            }            
           }
-        }
 
-        setClusters(updatedClusters);
+          const [allPipelineRuns, allTaskRuns] = await Promise.all([pipelineRunsPromise, taskRunsPromise]);
+          tmpCluster.pipelineRuns = allPipelineRuns;
+
+          for (const pipelineRun of tmpCluster.pipelineRuns) {
+            const dashboardAnnotation = "tektonci." + tmpCluster.name + "/dashboard";
+            // set dashboardUrl      
+            if (entity.metadata.annotations?.[dashboardAnnotation] !== undefined) {
+              const dashboardUrl = entity.metadata.annotations[dashboardAnnotation] ?? "";
+              const replacedUrl = dashboardUrl
+                .replace(/\$namespace/g, encodeURIComponent(pipelineRun.metadata.namespace))
+                .replace(/\$pipelinerun/g, encodeURIComponent(pipelineRun.metadata.name));
+              pipelineRun.pipelineRunDashboardUrl = replacedUrl;
+            }
+            // assign the taskruns to the relevant pipelineruns
+            const taskRunsForPipelineRun: Array<TaskRun> = [];
+            for (const taskRun of allTaskRuns) {
+              const pipelineRunNameLabel = taskRun.metadata.labels['tekton.dev/pipelineRun'];
+              if ((String(pipelineRunNameLabel) === pipelineRun.metadata.name) && (taskRun.apiVersion === pipelineRun.apiVersion)) {
+                taskRunsForPipelineRun.push(taskRun)
+              }
+            }
+            // sort the taskruns associated to a pipelinerun based on start time
+            taskRunsForPipelineRun.sort((taskRunA, taskRunB) =>
+              (taskRunA?.status?.startTime ?? 0) > (taskRunB?.status?.startTime ?? 0) ? -1 : 1
+            );
+            pipelineRun.taskRuns = taskRunsForPipelineRun;
+          }
+
+          // sort the pipelineruns       
+          tmpCluster.pipelineRuns.sort((pipelineA, pipelineB) =>
+            (pipelineA?.status?.startTime ?? 0) > (pipelineB?.status?.startTime ?? 0) ? -1 : 1
+          );
+          
+          updatedClusters[selectedClusterIndex] = {
+            ...updatedClusters[selectedClusterIndex],
+            pipelineRuns: tmpCluster.pipelineRuns,
+          };         
+
+          setClusters(updatedClusters);        
+          setFetchingData(false);
+        } else if (loadedCluster && loadedCluster.errors.length > 0) {
+          const tmpCluster = {} as Cluster;
+          tmpCluster.name = loadedCluster.cluster.name;
+          tmpCluster.error = loadedCluster.errors[0].errorType; // + ":" + JSON.stringify(kubernetesObject.errors[0], null, 2);
+          updatedClusters[selectedClusterIndex] = tmpCluster;
+          setClusters(updatedClusters);
+          setFetchingData(false);
+        } else {
+          updatedClusters[selectedClusterIndex] = {
+            ...updatedClusters[selectedClusterIndex],
+            pipelineRuns: [],
+          };         
+          setClusters(updatedClusters);   
+        }                  
       };
       fetchTaskRuns()
     }
 
-  }, [kubernetesObjects]);
+  //}, [kubernetesObjects?.items.find(obj => obj.cluster.name === selectedCluster), selectedCluster]);
+}, [kubernetesObjects, selectedCluster]);
 
   const handleClusterChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+    if (selectedCluster !== null) {
+      setFetchingData(true);
+    }
     setSelectedCluster(event.target.value as string);
   };
 
@@ -234,26 +305,50 @@ export const TektonDashboardComponent = ({
                   </Select>
                 </FormControl>
               </Grid>
-              {selectedCluster && kubernetesObjects?.items !== undefined && (
+              <Grid>
+                <Grid item>
+                {fetchingData && selectedCluster && (
+                    <div className="progress-bar-container">
+                      <Progress />
+                    </div>
+                  ) 
+                }
+                </Grid>
+              </Grid>
+              {!fetchingData && selectedCluster && kubernetesObjects?.items !== undefined && (
                 <Grid item>
                   <ContentHeader title={selectedCluster} textAlign="center"></ContentHeader>
                   {clusters
                     .filter((cluster) => cluster.name === selectedCluster)
-                    .map((cluster) =>
-                      cluster.pipelineRuns !== undefined &&
+                    .map((cluster) => {
+                      if (cluster.error) {
+                        return (
+                          <Box key={selectedCluster} textAlign="center" fontSize="20px">
+                            {`Error fetching data for cluster ${cluster.name}: ${cluster.error}`}
+                          </Box>
+                        );
+                      } else if (
+                        cluster.pipelineRuns !== undefined &&
                         cluster.pipelineRuns !== null &&
-                        cluster.pipelineRuns.length > 0 ? (
-                        <CollapsibleTable
-                          key={selectedCluster}
-                          clusterName={cluster.name}
-                          pipelineruns={cluster.pipelineRuns}
-                        />
-                      ) : (
-                        <Box textAlign="center" fontSize="20px">
-                          No pipeline runs for the selected cluster.
-                        </Box>
-                      )
-                    )}
+                        cluster.pipelineRuns.length > 0
+                      ) {
+                        return (
+                          <CollapsibleTable
+                            key={selectedCluster}
+                            clusterName={cluster.name}
+                            pipelineruns={cluster.pipelineRuns}
+                          />
+                        );
+                      } else if (!fetchingData && (cluster.pipelineRuns === undefined || cluster.pipelineRuns.length === 0)) {
+                        return (
+                          <Box key={selectedCluster} textAlign="center" fontSize="20px">
+                            No pipeline runs for the selected cluster.
+                          </Box>
+                        );
+                      } else {
+                        return null;
+                      }
+                    })}
                 </Grid>
               )}
             </Grid>
@@ -269,22 +364,4 @@ export const TektonDashboardComponent = ({
       </Content>
     </Page>
   );
-};
-
-function isCustomResource(n: FetchResponse) {
-
-  if (n.type === 'customresources') {
-    return true;
-  }
-  else {
-    return false;
-  }
-}
-
-function isPipelineRun(n: any): n is PipelineRun {
-  if (n.kind === 'PipelineRun') {
-    return true;
-  } else {
-    return false;
-  }
 }
