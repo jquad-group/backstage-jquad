@@ -44,6 +44,9 @@ class MockKubernetesClient implements KubernetesApi {
         ({ type: type.toLocaleLowerCase('en-US'), resources } as FetchResponse),
     );
   }
+  getCluster(_clusterName: string): Promise<{ name: string; authProvider: string; oidcTokenProvider?: string | undefined; dashboardUrl?: string | undefined; } | undefined> {
+    throw new Error('Method not implemented.');
+  }
   async getPodLogs(_request: {
     podName: string;
     namespace: string;

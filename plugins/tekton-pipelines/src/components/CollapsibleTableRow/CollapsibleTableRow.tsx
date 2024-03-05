@@ -2,7 +2,7 @@ import React from 'react';
 import { StatusError, StatusOK, StatusPending, StatusRunning, StatusWarning } from '@backstage/core-components';
 // eslint-disable-next-line  no-restricted-imports
 import { KeyboardArrowDown, KeyboardArrowUp } from '@material-ui/icons';
-import { Table, Typography, TableBody, TableRow, TableCell, IconButton, Collapse, TableHead } from '@material-ui/core';
+import { Table, TableBody, TableRow, TableCell, IconButton, Collapse, TableHead } from '@material-ui/core';
 /* ignore lint error for internal dependencies */
 /* eslint-disable */
 import { Condition, PipelineRun } from '../../types';
@@ -39,14 +39,15 @@ function StatusComponent(props: { conditions: [Condition]; }): JSX.Element {
   return <StatusPending />;
 
 }
-
-
  
 export function CollapsibleTableRow(props: { clusterName: string, pipelineRun: PipelineRun }) {
   const { clusterName, pipelineRun } = props;
-  const [open, setOpen] = React.useState(false);
-  
-  
+  const [open, setOpen] = React.useState(false);  
+
+  if (!pipelineRun || !pipelineRun.status) {
+    return null; // or handle this case accordingly
+  }
+
   if (pipelineRun.status.completionTime === undefined) {
     pipelineRun.status.completionTime = "";
   }
@@ -80,9 +81,6 @@ export function CollapsibleTableRow(props: { clusterName: string, pipelineRun: P
       </TableRow>
       <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
         <Collapse in={open} timeout="auto" unmountOnExit>
-          <Typography variant="h6" gutterBottom component="div">
-            TaskRuns
-          </Typography>
           <Table size="small" aria-label="taskruns">
             <TableHead>
               <TableRow>
@@ -106,5 +104,3 @@ export function CollapsibleTableRow(props: { clusterName: string, pipelineRun: P
     </React.Fragment>
   );
 }
-
-
